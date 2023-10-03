@@ -1,0 +1,756 @@
+			 Kotlin , Spring boot with WebFlux
+.....................................................................................
+
+1.Kotlin
+2.Project Reactor
+3.Spring Boot Integration with Kotlin
+4.Spring Boot with non blocking using WebFlux
+
+What is Kotlin?
+    Kotlin is the programming language for JVM.
+
+JVM is runtime to run java applications.
+
+JVM is abstract computer which solves the problem of platform independant.
+
+One source and one Compiled code can be ported  on multiple platforms(os/hardware)
+
+What is java?
+  You mean java is programming language but not.
+Java is technology, technolgy means solves the pratical problems.
+
+Java technology means many things
+
+1.Java programming language
+2.tools
+   compilers,debuggers,libs,apis....
+3.runtime - jre
+    -JDK
+
+
+Java Programming language offers the source code , compiler compiles the source code into object code(byte code).
+
+How java technology works? who controls java technology?
+
+JCP - java community process who standarize the java technology.
+
+All java versions and enchancments certified by JCP only...
+
+JCP classifies java into there major editions
+
+1.JAVA SE
+2.JAVA EE
+3.JAVA ME
+
+JEP - This is committe formed by oracle
+.....................................................................................
+			JSR 223 :Scripting for The Java TM Platform
+....................................................................................
+JSR 223 spec was released on June-10-2003
+
+Before this specification, only one programming language was there for JVM- Java Programming language.
+
+The spec aim is to introduce new languages for JVM - Poly glot languages for Java Platform.
+
+Based on this spec, the first language other than java pl, was created  for JVM-Groovy Programming langugage.
+
+.....................................................................................
+			    JSR 223 Poly glot language implementation
+
+
+        java pl    Groovy   Scala  Kotlin Clojure XX
+         -------------------------------------------
+			 |
+		      byte code
+                         |
+                        jvm
+
+
+
+The programs are developed using different styles.
+
+Programming styles:
+
+1.Object oriented
+2.Functional programming
+3.Procedural
+4.Rule based 
+etc....
+
+Any language follows any of one of the style or multi style(style).
+C is procedural language-single style language.
+c++ is object oriented language-single style language
+
+java was object oriented programming - single style
+
+Java is object oriented,functional style programming languge- multi style.
+
+Kotlin is object oriented, functional style programming language...
+
+Language is classified based on types(data types)
+.................................................
+
+1.strongly typed /static typed
+   The type of variable is decided during compile time.
+   int a=10;
+   a="hello"
+2.weak typed/dynamic typed
+  The type of variable is decided during runtime time.
+  var a =10
+  a ="hello"
+
+Kotlin is dynamic and strongly typed language.
+...................................................................................
+
+Programming language
+ =>GPL - General Purpose programming language
+     language used to build any type of apps
+ =>DSL -  Domain specific language
+     language used to build sepcific types of apps- html,css
+
+kotlin helps to build dsl code...
+
+DSL code is more declarative 
+ 
+  move left and move right - dsl code
+  find sqrt of 10 - dsl code
+  take 1 pile every day at morning 7 am  
+
+....................................................................................
+
+Programming methodlogy
+
+1.imperative programming
+    => any program there is two aspects
+        ->infra code
+        ->application logic
+    what is it? and how is it?
+
+2.declarative programming
+   focus only application logic
+   more readable
+   less boilerplate 
+   less code maintaince because less code
+  eg:
+    list.sort.filter.map.find.flaten
+
+Kotlin is more declarative programming  language.
+.....................................................................................
+	 "Kotlin helps to build more declarative, dsl , functional,object oriented          apps"
+
+
+Kotlin language is highly multi purpose programming language:
+
+ - To build mobile apps -> multi platform mobile - android and ios apps.
+ - To build server side apps - microservices,RESTFull apis,dynamic web apps..
+ - To build platform native apps like c++...
+
+
+Learning Path:
+1.language fundamentals
+2.object oriented programming
+3.functional programming
+4.Exception handling
+5.Data structures
+6.Concurrency - Co-routines
+7.Async programming / Non Blocking apps
+8.How to build DSL
+
+Frameworks:
+1.web frameworks
+2.android
+3.Front End 
+
+....................................................................................
+				Language fundamentals
+.....................................................................................
+
+We are going to build console based Kotlin apps.
+
+software req:
+1.JDK
+2.Intellij idea -  IDE 
+
+Step to create Kotlin project.
+
+You can use any build system to create kotlin project
+Maven or Gradle.
+
+Every Kotlin program is saved With "FileName.kt".
+
+Unlike java kotlin programs need not be started with classes, you can start with main method(function).
+
+Kotlin Programming style:
+
+1.file based/script based
+2.class based - oo style
+
+How to declare functions in kotlin?
+
+ fun functionName(arg){
+   //function body...
+ }
+Every kotlin program begins with "main" function...
+	
+in java : System.out.println()
+
+In Kotlin ; is optional
+
+HelloWorld.kt
+
+fun main(){
+    println("Hello Kotlin")
+}
+
+Steps:
+1.project creation.
+2.write helloworld
+
+
+HelloWorld.kt
+
+package com.wipro.kotlin.basics
+
+fun main() {
+    println("Hello Kotlin")
+}
+....................................................................................
+
+Language Fundamentals:
+
+1.Comments
+  Single line comment
+	//
+  Mutli line comment
+	/**
+        /**
+/**
+ * Every Kotlin program starts with main function.
+ * In Kotlin ; optional
+ */
+fun main(){
+    //which prints Hello message
+    println("Hello Kotlin")
+}
+....................................................................................
+			    Data types 
+.....................................................................................
+
+Program means collection of instructions.
+
+instrcutions -(information + how the information is stored,processed,reterived)
+information is nothing but data.
+
+How to store data inside computer using programs?
+
+we need to store in memory address, in order to store we need handle
+
+variable: it is handle to store data.
+
+Data:
+ -simple data - atomic data - primtive data
+  eg:10 -
+any data can be broken into smaller unit.
+
+Numbers:
+   1.whole number
+       -binary,oct,hexa
+   2.decimal numbers
+      - float
+
+
+Abstract data types:
+   In the begining of programming only basic were used by languages like numbers,characters.
+   How to create our own type system- Type of data - Custom Types...
+
+struct,union - c implemnetation of abstract types
+
+Any abstract types are built on the top of built in types.
+ 
+ struct Employee = {numbers,characters}
+
+After some time new type creation syntax introduced "class"
+
+ class Employee {
+    numbers
+    characters
+ }
+...................................................................................
+
+Type - Data type
+ -primtives
+ -Complex type/Custom Type/Reference Type
+
+Variable
+ -Holder to hold any type 
+Literal
+ -Values(Primitives,Complex values)
+
+
+In kotlin types are dervied from java language.
+
+Java Primtive Types:
+1.numbers
+ -byte,short,int,long
+ -float,double
+2.char
+3.boolean
+
+In Kotlin you cant use primtives type directly... rather you have to use always "Complex type" - Reference Type - Wrappers Types.
+
+In Kotlin , every thing is Object.
+
+variables are introduced using keywords
+
+-var
+-val
+
+variable declaration:
+ 
+ var | val | withoutanyKeyword variableName:Type = literal
+
+package com.wipro.kotlin.basics.types
+
+fun main() {
+    //var or val
+    //int b=10; you cant declare like java
+    var a: Int = 1
+    var s: Short = 12
+    var b: Byte = 10
+    var l: Long = 19999
+    var f: Float = 10.3f
+    var d: Double = 90.334
+    var isActive: Boolean = true
+    println("Int " + a)
+    println("Short " + s)
+    println("Byte " + b)
+    println("Long " + l)
+    println("Float " + f)
+    println("Double " + d)
+    println("Boolean " + isActive)
+}
+
+Type inference:
+ The type of variable is calculated based on the literal size.
+
+var speed =100
+ here the type of speed is calculated according to value
+ by default Int type is assigned.
+
+package com.wipro.kotlin.basics.types
+
+fun main() {
+    //var or val
+    //int b=10; you cant declare like java
+    var a = 1
+    var s = 12 //as Short
+    var b = 10 //as Byte
+    var l = 19999 //as Long
+    var f = 10.3f
+    var d = 90.334
+    var isActive = true
+    println("Int " + a)
+    println("Short " + s.toShort())
+    println("Byte " + b.toByte())
+    println("Long " + l.toLong())
+    println("Float " + f.toFloat())
+    println("Double " + d)
+    println("Boolean " + isActive)
+
+
+}
+.....................................................................................
+			 Static Typed language or Dynamic typed Language
+
+Static type:
+int a =10;
+a=90; // it is valid
+a=true //it is invalid - compile time error
+
+Dynamic typed
+in Js
+ let a =10;
+ a =100 //valid
+ a=true //valid
+In groovy
+ def a =10
+  a=10 //valid
+  a=true //valid
+
+
+Kotlin language is "strongly typed/Static typed" language, even though language looks like without type, but the type is infered
+fun main(){
+    var a =10
+    println("A " + a )
+    a=90
+    println("A " + a )
+    //a=true // invalid
+    println("A " + a )
+
+}
+.....................................................................................
+Strings :
+ String is collection of unicode characters
+ String Object 
+ Strings are declared  with "" , """
+
+Strings are concated with  + -> traditonal style
+
+Strings are represented with "String Templates" - String interploation.
+
+ "$variable" / "${}"
+
+package com.wipro.kotlin.basics.types
+
+fun main() {
+    var firstName: String = "Subrmanaian"
+    var lastName = "Murugan"
+    //java style:it is not recommended
+    println("Name" + firstName + lastName)
+    //kotlin style: using string interpolation
+    println("Name $firstName $lastName")
+
+}
+
+..................................................................................
+				Multi Line Strings
+...................................................................................
+
+java style
+package com.wipro.kotlin.basics.types
+
+
+fun main() {
+    //traditonal style: java style
+    var doc = "<html>" +
+            "<head>" +
+            "<title>Home</title>" +
+            "</head>" +
+            "<body>" +
+            "</body>" +
+            "</html>"
+    println(doc)
+    //kotlin style
+    var message = "Hello!!1"
+    var newDoc = """
+        <html>
+         <head>
+         <title>Home</title>
+         </head>
+         <body>
+         <h1>${message}</h1>
+         </body>
+        </body>
+    """.trimIndent()
+    println(newDoc)
+}
+...................................................................................
+			 var vs val
+...................................................................................
+package com.wipro.kotlin.basics.types
+
+fun main() {
+    var i = 10
+    println("i $i")
+    i = 90
+    println("i $i")
+
+    val j = 10
+    println("j $j")
+    //j=2323 //error 
+    println("j $j")
+
+}
+
+var with variable can be reinitalized, where as val cant be reinitalized.
+.....................................*****************.............................
+...................................................................................
+				Operators
+....................................................................................
+
+All operators supported by java  , supported by kotlin as well.
+
+Types of operators
+1.arithmetic operators
+2.conditional operators
+3.logical operators
+
+package com.wipro.kotlin.basics.operators
+
+fun main() {
+    var a = 10;
+    var b = 22;
+    var c = a + b
+    println("Add $c")
+    c = a - b
+    println("Substraction $c")
+    c = a * b
+    println("Multiplication $c")
+    c = a / b
+    println("Division $c")
+    c = a % b
+    println("Moduls $c")
+    //augmentd operators
+    var counter = 0
+    counter += 1
+    println("counter $counter")
+
+    //logical operators : based on boolean expressions
+    var isValid = true
+    var isEnabled = false
+    var res = isValid && isEnabled
+    println("Result $res")
+
+    //Equals : Structural equals
+    var x = 100
+    var y = 100
+    var isEqual = x == y
+    println("X AND  Y ARE Equal $isEqual")
+    var str = "hello"
+    var str1 = str
+    println("str AND  str1 ARE Equal ${str1 == str}")
+    
+    //comparasional operators
+    var isBig  = a > b
+    println("IsBIg $isBig")
+
+}
+			.....................................................................................
+			 conditional work flow
+.....................................................................................
+conditions: - if
+
+In kotlin, "if" is an expression like (a+b,return 100),In java if is statement
+it can return a value like functions.
+so in kotlin there is no need for tenary operator.
+(condtion ? truthy:falsy)- similar construct if expression provides
+package com.wipro.kotlin.basics.ifexpression
+
+fun main() {
+    var a = 100
+    var b = 2088
+    var max = a
+    //traditional style: java style
+    if (a < b) {
+        max = b
+    }
+    println("Max $max ")
+    //Kotlin expression style
+    if (a < b) max = b //here we return max variable
+    println("Max $max ")
+
+    //if..else ; java style
+    if (a > b) {
+        max = a
+    } else {
+        max = b
+    }
+    println("Max $max ")
+    //if..else ; kotlin style
+
+    max = if (a > b) a else b
+    println("Max $max ")
+
+    var isValid = true
+    var res = if (isValid) "Greet" else "Good Bye"
+    println(res)
+    //block of code with if and else
+    res = if (isValid) {
+        println("More code")
+        var firstName = "Subramnaian"
+        //return value
+        "Hello $firstName"
+    } else {
+        println("More code")
+        var firstName = "Murugan"
+        //return value
+        "How are you? Mr/Mrs $firstName"
+    }
+    println(res)
+
+
+}
+....................................................................................
+When expression:
+...............
+ When is similar to if expression, but when defines a condtions with multiple branches. which is similar to switch statement...
+In Kotlin no switch case...
+
+Simple When:
+package com.wipro.kotlin.basics.conditionalexpression
+
+fun main() {
+    //simple when
+    var x = 1
+    when (x) {
+        1 -> println("x is 1")
+        2 -> println("x is 2")
+        else -> println("No Match Found")
+    }
+}
+either this or that
+package com.wipro.kotlin.basics.conditionalexpression
+
+
+fun main() {
+    //simple when
+    var x = 10
+    when (x) {
+        0, 10 -> println("X value is 0 or 10")
+        else -> println("No match found")
+    }
+}
+Range:
+package com.wipro.kotlin.basics.conditionalexpression
+
+fun main() {
+    var input = 120
+    when (input) {
+        in 1..107 -> println("Input is part of this range  1- 100")
+        !in 1..100 -> println("Input does not part of this range")
+    }
+}
+
+//return result from when expression:
+package com.wipro.kotlin.basics.conditionalexpression
+
+fun main() {
+    var isLoggedIn = false
+    var status = when (isLoggedIn) {
+        true -> "LoggedIn"
+        false -> "LoggedOut"
+    }
+    println(status)
+}
+
+if when expression arg is not supplied, the branch conditions are simply boolean expression, and a branch is executed when its condition is true.
+
+package com.wipro.kotlin.basics.conditionalexpression
+
+
+fun main() {
+    var num = 3;
+    var isEvenOrOdd = when {
+        num % 2 == 0 -> "Even"
+        num % 2 != 0 -> "Odd"
+        else -> "No Match Found"
+    }
+    println(isEvenOrOdd)
+}
+.....................................................................................
+....................................................................................
+				Loops
+...................................................................................
+Loops:
+ for
+ range
+ while
+ do...while
+
+package com.wipro.kotlin.basics.loops
+
+fun main() {
+    //RANGE
+    for(count in 1..10){
+        println("Count $count")
+    }
+    //reverse order
+    for(count in 5 downTo 1){
+        println("Count $count")
+    }
+    //step by
+    for (count in 1..10 step 2){
+        println("Count $count")
+    }
+    //until
+    for (count in 5 until 10 ) println("Count Until $count")
+}
+.....................................................................................
+				Functions
+.....................................................................................
+
+What is function?
+  The term function is derived from the mathmetics.
+  The function represents unit of execution
+  The function is building block of computer system itself.
+
+Types of functions?
+1.passive functions
+2.active functions
+
+Every program is running on another program called runtime/Process
+
+aJava programs are running on the another program called JVM.
+J
+VM is written in c language.
+
+JVM is just process just like other process running on operating system.
+
+Every Process has its own arch...
+
+Process has three seg.
+
+1.heap
+2.Stack 
+3.Program data
+
+Program data/method area
+........................
+  All passive instructions are stored.
+  Passive instructions means that instructions are not used by CPU and Main memory.
+
+All functions declrations are stored inside this area
+All Static variables are stored inside this area
+All literals(values) are stored inside this area
+....................................................................................
+			 Runtime Represention of functions
+...................................................................................
+
+In Programs, runtime representation means, which should be accessed by CPU,Memory should be allocated inside main memory.
+
+Every functions must be allocated on RAM, so that it can be accessed by CPU.
+
+//declaration
+
+function main(){ 
+
+}
+
+main()---> we have to allocate memory on RAM--->
+
+When function is called, the function is pushed into stack.
+
+Stack is just first in last out data structure.
+
+Once the function gets pushed into stack, The process allocates memory.
+
+This memory is called as "Stack Frame"
+
+After execution of statck frame it is removed from memory, so that other stack frames will start 
+
+sayHello----frame is created---frame is running---frame is removed
+sayHai -----framew is created ---frame is runnin-frame is removed
+....................................................................................
+.....................................................................................
+			  Kotlin functions
+....................................................................................
+
+Kotlin supports different functions
+
+1.normal functions
+2.infix function
+3.local function
+4.member function
+5.Tail Recursive function
+6.inline function
+7.suspend function
+8.operator function
+9.lambda functions
+
+
+
+
+
+
+
+
