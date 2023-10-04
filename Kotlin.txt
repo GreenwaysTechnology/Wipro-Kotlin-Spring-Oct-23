@@ -747,10 +747,404 @@ Kotlin supports different functions
 8.operator function
 9.lambda functions
 
+1.normal function
+ -how to declare function
+ -how to invoke 
+ -args and parameters
+   -Named,optional args
+ -return types  and values
+package com.wipro.kotlin.functions.normal
+
+//other functions
+
+//fun declaration
+fun sayHello() {
+    //function body
+    println("Hello");
+}
+
+//fun with some logic
+fun add() {
+    var a = 10
+    var b = 20
+    var c = a + b
+    println("Add Result $c")
+
+}
+
+//Every Kotlin has entry point called main function
+fun main() {
+    //invoke function
+    sayHello();
+    add();
+}
+....................................................................................
+			 Function args and parameters
+...................................................................................
+
+What is arg?
+ Arg is place holder which holds values
+What is parameter?
+ Parameter is nothing but value what we pass.
+
+
+package com.wipro.kotlin.functions.normal.args
+
+fun sayHello(message: String) {
+    println(message)
+}
+fun add(a:Int,b:Int){
+    var c = a + b
+    println("C $c")
+}
+
+fun main() {
+    sayHello("Hello")
+    add(10,10)
+}
+............
+Default Args:
+  In java parameters must be passed for given args,
+  In Kotlin you can skip parameters, we can provide default args
+
+package com.wipro.kotlin.functions.normal.args.defaultargs
+
+fun add(a: Int = 0, b: Int = 0) {
+    var c = a + b
+    println("a $a b $b c $c")
+}
+
+fun main() {
+    add()
+    add(10,20)
+}
+...................................................................................
+			Positional and Named Parameters
+....................................................................................
+
+In java parameters are position based
+
+void add(int a,int b){
+
+}
+add(10,10)
+void format(String str,boolean b,int a){
+
+}
+format("sss",true,10)
+
+Kotlin also supports positions based.
+
+eg
+fun add(a: Int = 0, b: Int = 0) {
+    var c = a + b
+    println("a $a b $b c $c")
+}
+
+fun main() {
+    add()
+    add(10,20)
+}
+...................................................................................
+			 Named Parameters
+...................................................................................
+You can pass values in any order.
+Named args also can have default values.
+You can skip values any where in the arg list.
+
+package com.wipro.kotlin.functions.normal.args.defaultargs
+
+fun format(str: String = "str", normalizeCast: Boolean = false, upperCaseFirstLetter: Char = 'A') {
+    println("Str $str noralizeCase ${normalizeCast} UpperCaseFirstLetter ${upperCaseFirstLetter}")
+}
+
+fun main() {
+    format();
+    //named parameters
+    format(str = "Hello", upperCaseFirstLetter = 'B', normalizeCast = true)
+    format(normalizeCast = false);
+}
+
+
+Positional and Named Parameters
+
+1.function does not have default values -  Optional parameter
+2.function with default value- Named parameter
+.....................................................................................
+
+Any type:
+
+package com.wipro.kotlin.functions.normal.args.defaultargs
+
+//Any is like  java.lang.Object in java.
+//In Kotlin every thing Object, Super Object is "Any"
+fun accept(a: Any) {
+    println(a)
+}
+
+fun main() {
+    accept("hello")
+    accept(100)
+    accept(true)
+    accept(33.44)
+}
+....................................................................................
+			 Return values and Type
+....................................................................................
+
+In Kotlin function returns any object if function does return any thing which is Called "Unit".
+
+The "Unit" is type with only One Value- Unit
+
+package com.wipro.kotlin.functions.normal.returntypes
+
+//Explicit Unit
+fun doStuff(): Unit {
+    println("unit")
+    return
+}
+
+fun doSomething() {
+    println("unit")
+    return
+}
+
+fun main() {
+    doStuff()
+    doSomething()
+}
+
+Other types:
+package com.wipro.kotlin.functions.normal.returntypes
+
+//Explicit Unit
+fun doStuff(): Unit {
+    println("unit")
+    return
+}
+
+fun doSomething() {
+    println("unit")
+    return
+}
+
+//String
+fun sayHello(): String {
+    return "Hello"
+}
+
+fun add(a: Int = 0, b: Int = 0): Int {
+    return a + b
+}
+
+fun main() {
+    doStuff()
+    doSomething()
+    println(sayHello())
+    println(add(a = 10, b = 90))
+}
+....................................................................................
+			 Single-Expression functions
+....................................................................................
+When a function returns a "single Expression" no more body, the curly braces and return statement can be omitted and body can be specified after = symbol
+return type can be ommitted, which is typeinferenced 
+
+package com.wipro.kotlin.functions.normal.returntypes
+
+//fun sum(a: Int = 0, b: Int = 0): Int {
+//    return a * b
+//}
+//Single expression function
+//fun sum(a: Int = 0, b: Int = 0): Int = a * b
+//return type also can be ommitted
+fun sum(a: Int = 0, b: Int = 0) = a * b
+fun accept(name: String = "name") = "Hello $name"
+
+fun main() {
+    println(sum(123, 45)) //position
+    println(sum(b = 90, a = 10)) //Named parameter
+    println(accept("Subramanian"))
+}
+....................................................................................
+			 Variable args-Var args
+...................................................................................
+
+In order to receive variable args, kotlin provides a keyword "vararg".
+
+package com.wipro.kotlin.functions.normal.args.varargs
+
+fun logger(vararg args: String) {
+    for (arg in args) println(arg)
+}
+
+fun main() {
+    logger("Employee.kt", "Warning", "Save Method is called")
+    logger("Employee.kt", "Error", "remove Method is called", "501")
+}
+.....................................................................................
+			null
+.....................................................................................
+
+What is null?
+  
+int a =10; 
+String str =null
 
 
 
+10 is value
+null ? value ----> it is value
+
+Different languages implement null differently.
+In java null is Object. NULL object.
+
+NULL Object means , you dont have valid Object of that Type.
+
+if you access any property on Null Object , It will throw error- NullPointerException.
 
 
+if NullPointer Exception occurs, the system crashes.
+
+Handling null in java like language is really challanging....
+...................................................................................
+			How to handle  Null in Kotlin
+...................................................................................
+Null reference/Object is unavoidable in any object oriented systems, handling null is more chaallange.
+
+How to handle null very safely?
+
+  Kotlin like languages now a days handles null very efficiently without crashing system.
+  Kotlin handles null positiviely, if there is null, we can give alternate values.
+
+In java , the methods,properties access are verfied during run time only.
+String str =null
+str.trim() 
+
+In java , null is verified during runtime.
+................
+
+In Kotlin "null" is verified during compile itself, so that your code will be more strong and safe during development and production
+
+App never crashes because of null errors.
+....................................................................................
+			 Kotlin and null
+.....................................................................................
+
+1.Kotlin never allows null by default.
+
+package com.wipro.kotlin.basics.nulldemo
+
+fun main() {
+    var name:String = null 
+}
+The code causes compile time error
+ "Null can not be a value of a non-null type String"
+  
+package com.wipro.kotlin.basics.nulldemo
+
+fun main() {
+    //var name:String = null
+    var name: String
+    println(name)
+}
+The code also causes compile error.
+ because when declaration of variable , no error, but when access the variable ,it will give you error.
+
+As of now the variable must have been initialized to some string.
+
+What if i want null to be initalized to a variable. How to declare null in kotlin?
+
+What if i want "nullable" value?
+
+"nullable" means the variable can have null.
+
+var variableName:Type? = null
+
+package com.wipro.kotlin.basics.nulldemo
+
+fun main() {
+    //var name:String = null
+    var name: String? = null
+    println(name)
+}
+....................................................................................
+			What if i access any property on null
+....................................................................................
+package com.wipro.kotlin.basics.nulldemo
+
+fun main() {
+    var name:String? = null 
+    println(name.length)
+}
+this code causes compile time error, you cant access any property on null reference.
 
 
+Way 1: Handling null using java style
+
+package com.wipro.kotlin.basics.nulldemo
+
+fun main() {
+    var name: String? = null
+    //Ways to handle null
+    //Way 1: Handling null using java style
+    if (name != null) {
+        println(name.length)
+    }
+}
+
+Way 2: Kotlin style "Using safe navigation operator
+
+variable?.property
+  here if variable has null , then output would be "null" string representation.
+
+package com.wipro.kotlin.basics.nulldemo
+
+fun main() {
+    var name: String? = null
+    //Ways to handle null
+    //Way 1: Handling null using java style
+    if (name != null) {
+        println(name.length)
+    }
+
+    //Way 2: Kotlin style "Using safe navigation operator
+    println(name?.length)
+}
+
+Way 3: Kotlin style "Using Elvis Operator" : if there is null,if you want some default  instead of "null" string.
+
+package com.wipro.kotlin.basics.nulldemo
+
+fun main() {
+    var name: String? = null
+       //Way 3: Kotlin style "Using Elvis Operator" : if there is null,if you want some default
+    // instead of "null" string.
+     var length = name?.length ?: 0
+    println("String length is $length")
+}
+
+way 4: kotlin style: for some reasons,"if you want Runtime Exception" How to throw NullPointerException !! assertion operator which throws runtime exception.
+
+
+package com.wipro.kotlin.basics.nulldemo
+
+fun main() {
+    var name: String? = null
+    //way 4: kotlin style: for some reasons,"if you want Runtime Exception" How to        //throw NullPointerException
+    //!! assertion operator which throws runtime exception.
+    println("${name!!.length}")
+}
+.....................................................................................
+			Functions and Nullable values
+...................................................................................
+package com.wipro.kotlin.basics.nulldemo
+
+fun sayHello(name: String? = "") {
+    println("Hello ${name} and its length is ${name?.length ?: 0}")
+}
+
+fun main() {
+    sayHello(null)
+    sayHello(name = "Murugan")
+}
+.....................................................................................
