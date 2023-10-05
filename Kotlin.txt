@@ -1762,7 +1762,164 @@ fun main() {
     asyncTask { println(it) }
     async("async payload") { println(it) }
 }
+.....................................................................................
+			 Object oriented programming in kotlin
+.....................................................................................
 
+How to declare classes in kotlin and how to create object?
+package com.wipro.kotlin.oo.classes
+
+class Customer {
+    //instance variables
+    var id: Int? = null
+    var firstName: String? = null
+    var lastName: String? = null
+    var status: Boolean? = null
+
+}
+
+fun main() {
+    //customer is reference variable
+    //val customer: Customer = Customer()
+    val customer = Customer()
+    //no need of adding getters and setters ; kotlin provides default getters and setters
+    println("Id ${customer.id}")
+    println("Name ${customer.firstName} ${customer.lastName}")
+    println("Status ${customer.status}")
+
+}
+...................................................................................
+			 State(data/properties) initalization
+...................................................................................
+
+1.inside class
+2.outside class after object creation
+3.during object creation- constructors
+
+1.Inside class
+package com.wipro.kotlin.oo.classes.stateinit
+
+
+class Customer {
+    //instance variables
+    var id: Int? = 0
+    var firstName: String? = "Subramanian"
+    var lastName: String? = "Murugan"
+    var status: Boolean? = true
+
+}
+
+fun main() {
+    //customer is reference variable
+    //val customer: Customer = Customer()
+    val customer = Customer()
+    //no need of adding getters and setters ; kotlin provides default getters and setters
+    println("Id ${customer.id}")
+    println("Name ${customer.firstName} ${customer.lastName}")
+    println("Status ${customer.status}")
+
+}
+
+2.Outside class
+
+package com.wipro.kotlin.oo.classes.stateinit
+
+
+class Customer {
+    //instance variables
+    var id: Int? = 0
+    var firstName: String? = "Subramanian"
+    var lastName: String? = "Murugan"
+    var status: Boolean? = true
+
+}
+
+fun main() {
+    //customer is reference variable
+    //val customer: Customer = Customer()
+    val customer = Customer()
+    customer.id = 1
+    customer.firstName = "Geetha"
+    customer.lastName = "Subramanian"
+    customer.status = true
+    println("Id ${customer.id}")
+    println("Name ${customer.firstName} ${customer.lastName}")
+    println("Status ${customer.status}")
+
+}
+....................................................................................
+			 init block
+...................................................................................
+
+init is a special block used to initalize the variables and any code.
+
+A Single class can have multiple init block but recommened having only one init block.
+
+init blocks are getting executed the order in which it has been declared.
+package com.wipro.kotlin.oo.classes.stateinit
+
+
+class Employee {
+    //instance variables
+    var id: Int? = null
+    var firstName: String? = null
+    var lastName: String? = null
+    var status: Boolean? = null
+
+    init {
+        id = 1
+        firstName = "foo"
+        lastName = "bar"
+        status = false
+    }
+    init {
+        println("init 2")
+    }
+}
+
+fun main() {
+    //customer is reference variable
+    //val customer: Customer = Customer()
+    val employee = Employee()
+
+    println("Id ${employee.id}")
+    println("Name ${employee.firstName} ${employee.lastName}")
+    println("Status ${employee.status}")
+
+}
+.....................................................................................
+			Setter and getters
+.....................................................................................
+
+According to java bean spec, java needs to have setters and getters
+
+According to kotlin setters and getters are implicit.
+
+Can we use getters and setters in kotlin?
+
+Yes!
+
+Syntax:
+  var <PropertyName>:[PropertyType] = [<property_initalizer>]
+  getter
+  setter
+package com.wipro.kotlin.oo.classes.settersgetters
+
+class User {
+    var name: String? = null
+        set(value) {
+            field = "Mr/Mrs $value"
+        }
+        get() = field?.uppercase()
+
+}
+
+fun main() {
+    val user = User()
+    user.name = "Subramanian"
+    println(user.name)
+}
+......
 
 
 
