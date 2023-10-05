@@ -1325,6 +1325,476 @@ here sayHello is just variable only pointing function literal
 
 Here no name of the function that is called "anonymous function"
 
+...........
+
+functions without type annotation: type inference:
+
+package com.wipro.kotlin.functionalprogramming
+
+//Function with type inference
+var greet = fun() {
+    println("Greet")
+}
+
+fun main() {
+    greet()
+}
+
+Anonymous Function with Parameters:
+
+
+package com.wipro.kotlin.functionalprogramming
+
+//With type
+//var add: (Int, Int) -> Int = fun(a: Int, b: Int): Int {
+//    return a + b
+//}
+//without Type
+//var add = fun(a: Int, b: Int):Int {
+//    return a + b
+//}
+//Single function expression with anonymous function
+var add = fun(a: Int, b: Int) = a + b
+
+fun main() {
+    println(add(10, 3));
+}
+
+Nullable parameters and Anonymous function:
+.............................................
+package com.wipro.kotlin.functionalprogramming
+
+//var accept: (String?) -> String? = fun(message: String?): String? {
+//    return message
+//}
+//var accept = fun(message: String?): String? {
+//    return message
+//}
+var accept: ((String) -> String)? = fun(message: String): String {
+    return "Hello $message"
+}
+var display = fun(message: String?): String? {
+    return "Hello $message"
+}
+
+fun main() {
+    //println(accept("Hello"));
+    accept?.invoke("Hello")
+    display?.invoke("Hello");
+    display?.invoke(null)
+}
+....................................................................................
+			 Higher order functions
+/////////////////////////////////////////////////////////////////////////////////////
+
+Function is passed as parameter to another function.
+
+Before understanding higher order function, we need to understand, how parameters are passed.
+
+package com.wipro.kotlin.functionalprogramming.hof
+
+fun add(a: Int, b: Int): Int {
+    return a + b
+}
+
+fun main() {
+    //How to pass values to the function?
+    //hard coded value
+    println(add(10, 10))
+    //via variables
+    var x = 10
+    var y = 20
+    println(add(x,y))
+}
+
+Simple Higher order function:
+package com.wipro.kotlin.functionalprogramming.hof
+
+//Basic higher order function
+fun sayGreet(action: () -> Unit) {
+    action.invoke()
+    action()
+}
+
+//
+
+
+fun main() {
+    //passing functions pattern
+    var hello = fun() {
+        println("Hello")
+    }
+    //passing function via variable
+    sayGreet(hello)
+    //passing function as literal to the function
+    sayGreet(fun() {
+        println("Hello")
+    })
+
+}
+....................................
+
+Higher orders with args and paramters:
+.....................................
+package com.wipro.kotlin.functionalprogramming.hof
+
+fun adder(action: (Int, Int) -> Unit) {
+    action(10, 10)
+}
+
+fun main() {
+    adder(fun(a: Int, b: Int) {
+        var c = a + b
+        println("C $c")
+    })
+}
+
+Named Parameters with Higher order function:
+............................................
+package com.wipro.kotlin.functionalprogramming.hof
+
+fun login(
+    userName: String = "foo",
+    password: String = "bar",
+    resolve: (String) -> Unit,
+    reject: (String) -> Unit
+) {
+
+    if (userName == "admin" && password == "admin")
+        resolve("Login Success")
+    else
+        reject("Login failed")
+
+}
+
+fun main() {
+    login(userName = "admin",
+        password = "admin",
+        fun(status) { println(status) },
+        fun(err) {
+            println(err)
+        })
+    login(userName = "foo",
+        password = "bar",
+        fun(status) { println(status) },
+        fun(err) {
+            println(err)
+        })
+}
+....................................................................................
+		    Lambdas
+....................................................................................
+
+What is Lambda?
+ The term Lambda is derived from Lambda calculs.
+
+Lambdas are function literals only, can be assigned to a variable, passed around(in and around).
+
+How to declare Lambda expression?
+
+var or val variableName:FunctionType = {arg->functionbody}
+
+Rules:
+1.A lambda expression is always surroned by {}
+2. Parameter declarations in the full synatatic form go inside curly braces and have optional type annotations.
+4.The body of the function will go after "->"
+5.The infered return type is not "Unit" by default, the last line (possibly) expression inside the lambda body is treated as the return value.
+6.Lambda can be passed to another function as parameter or Lambdas can be passed to another lambda as parameter.
+
+package com.wipro.kotlin.functionalprogramming.lambdas
+
+//normal function
+fun add(a: Int = 1, b: Int = 1): Int {
+    return a + b
+}
+
+//Single expression function
+fun addExression(a: Int = 1, b: Int = 1) = a + b
+
+//function as literal : default values can't be initialized in the function literal
+var addFunLiteral = fun(a: Int, b: Int): Int {
+    return a + b
+}
+
+//function  lambda
+val addLambda = { a: Int, b: Int ->
+    //body of the function
+    //last line of the function to be treated as return value
+    a + b
+}
+
+fun main() {
+    println(add())
+    println(addExression())
+    println(addFunLiteral(33, 333))
+    println(addLambda(1, 2))
+}
+.....................................................................................
+			Lambda Complex syntax
+.....................................................................................
+package com.wipro.kotlin.functionalprogramming.lambdas
+
+//var login: (String, String) -> String = { userName: String, password: String ->
+//    if (userName == "admin" && password == "admin")
+//        "Login Success"
+//    else
+//        "Login Failed"
+//}
+var login = { userName: String, password: String ->
+    if (userName == "admin" && password == "admin")
+        "Login Success"
+    else
+        "Login Failed"
+}
+
+fun main() {
+    println(login("admin", "admin"))
+}
+..................................................................................
+		Lambda with Single Paramter - it variable
+...................................................................................
+"it" is implicit variable can be used in lambda to replace single explicit args
+
+package com.wipro.kotlin.functionalprogramming.lambdas
+
+//var sayMyName = { name: String ->
+//    name.uppercase()
+//}
+//using it variable
+var sayMyName: (String) -> String = {
+    println("test")
+    println("demo")
+    it.uppercase()
+}
+
+fun main() {
+    println(sayMyName("Subramanian"))
+}
+...................................................................................
+			Higher order functions and Lambda
+...................................................................................
+How to pass lambda as parameter to another function or another lambda?
+
+package com.wipro.kotlin.functionalprogramming.lambdas
+
+fun delay(action: () -> Unit) {
+    action()
+}
+
+fun main() {
+//passing regular function as parameter
+    delay(fun() {
+        println("delay")
+    })
+    //passing lambda
+    var task = {
+        println("task-lambda")
+    }
+    delay(task)
+    delay({
+        println("task-lambda")
+    })
+}
+.....................................................................................
+How lambda can accept another lambda as parameter?
+
+package com.wipro.kotlin.functionalprogramming.lambdas
+
+//Inside lambda, it variable is not available when function passed as parameter or function as type
+//var async1:() -> Unit = {
+//    it()
+//}
+
+var async = { action: () -> Unit ->
+    action()
+}
+
+
+fun main() {
+
+    var task = {
+        println("task-lambda")
+    }
+    async(task)
+    async({
+        println("lambda task 1")
+    })
+    async(fun() {
+        println("delay")
+    })
+}
+...................................................................................
+			DSL - Domain Specific language
+...................................................................................
+
+More readable code english like statement.
+Kotlin supports building dsl programs
+
+Basic DSL Syntax:
+
+When we pass lambda as parameter to the function/another lambda we can ommit braces ()
+package com.wipro.kotlin.functionalprogramming.dsl
+
+fun delay(action: () -> Unit) {
+    action()
+}
+
+fun repositories(action: () -> Unit) {
+    action()
+}
+
+fun mavenCentral() {
+    println("downloading jar dependencies")
+}
+
+fun main() {
+    var task = {
+        println("task-lambda")
+    }
+    // normal syntax
+    delay(task)
+    delay({
+        println("Delay lambda ")
+    })
+    //dsl syntax
+    delay(task) // when you pass variable, you can ommit braces
+    delay {
+        println("Delay lambda ")
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+.....................................................................................
+		 Higher order function takes more parameters(mixed)
+
+
+package com.wipro.kotlin.functionalprogramming.dsl
+
+fun compute(no: Int = 0, action: () -> Unit) {
+    println("No $no")
+    action()
+}
+
+fun main() {
+    compute(10, { println("compute") })
+}
+
+DSL syntax for more parameters:
+...............................
+When you pass lambda as second or last parameter, the first parameter can be enclosed with "()" and second parameter passed passed directly.
+
+Note: lambda should be always last parameter.
+
+package com.wipro.kotlin.functionalprogramming.dsl
+
+import kotlin.concurrent.thread
+
+fun compute(no: Int = 0, action: () -> Unit) {
+    println("No $no")
+    action()
+}
+
+fun filterBy(
+    order: String = "asc",
+    name: String = "name",
+    no: Int = 0,
+    action: () -> Unit
+) {
+    println("Order $order Name $name No $no")
+    action()
+}
+
+fun main() {
+    compute(10, { println("compute") })
+    //dsl syntax
+    compute(23) { println("compute") }
+    //dsl syntax with default value
+    compute { println("compute") }
+
+    filterBy { println("Filter callback") }
+    filterBy(name = "Subramanian", order = "asy", no = 1) {
+        println("Filter callback with values")
+    }
+    //Thread creation using lambda
+    thread(start = true, name = "MyThread1", priority = 2) {
+        Thread.sleep(2333)
+
+        println("${Thread.currentThread().name}")
+    }
+
+    thread(start = true, name = "MyThread2", priority = 1) {
+        println("${Thread.currentThread().name}")
+    }
+
+    thread(start = true, name = "MyThread3", priority = 2) {
+        println("${Thread.currentThread().name}")
+    }
+}
+....................................................................................
+			_ notation in lambda
+...................................................................................
+package com.wipro.kotlin.functionalprogramming.dsl
+
+fun doCompute(a: Int = 0, b: Int = 0, action: (Int, Int) -> Unit) {
+    action(a, b)
+}
+
+fun main() {
+    doCompute(b = 233) { _, b -> println(b) }
+}
+...................................................................................
+		 How to pass lambda as parameter to another lambda
+...................................................................................
+package com.wipro.kotlin.functionalprogramming.dsl
+
+package com.wipro.kotlin.functionalprogramming.dsl
+
+var asyncTask = { action: (String) -> Unit ->
+    action("async task")
+}
+
+var async = { payload: String, action: (String) -> Unit ->
+    action(payload)
+}
+
+fun main() {
+    asyncTask { println(it) }
+    async("async payload") { println(it) }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
