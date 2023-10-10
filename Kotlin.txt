@@ -3172,7 +3172,7 @@ fun main() {
 
 }
 .....................................................................................
-		   Sealed Classes
+		   		Sealed Classes
 ...................................................................................
 
 Sealed classes and interfaces represent restricted class hierachies that provide more control over inheritance.
@@ -3385,16 +3385,462 @@ fun main() {
     Hello.createInstance().sayHello()
 }
 ....................................................................................
+			Scope functions
+....................................................................................
+Scope functions are built in kotlin standard lib functions like toString,hashcode,equals
+
+Scope functions primary purpose is to execute a block code(lambd) within the context of an object.
+
+"Scope" means when you call scope functions on an object with a lambda expressions provided, it forms temporary scope, you can access the properties without its name.
+
+There are five scope functions
+
+1.let 
+2.run 
+3.with
+4.apply
+5.also
+
+Pre Scope function:
+package com.wipro.kotlin.oo.scopefunctions
+
+data class User(var name: String = "", var location: String = "", var points: Int = 0) {
+    //biz logic
+    fun updateLocation(newLocation: String) {
+        location = newLocation
+    }
+
+    fun incrementPoints() {
+        points++
+    }
+}
+
+fun main() {
+    var user = User(name = "Subramanian", location = "Coimbatore", points = 10)
+    //access properties
+    println("Name ${user.name}")
+    println("Location ${user.location}")
+    println("Points ${user.points}")
+
+    //update location and points
+    user.updateLocation("Chennai")
+    user.incrementPoints()
+    println("Location ${user.location}")
+    println("Points ${user.points}")
+}
+
+Here we access the object properties using reference variable.
+The same property we can access using "scope functions".
+...................................................................................
+
+How to use scope functions?
+....................................................................................
+Function Name	   Object Reference        Return Value  isExtension Function
+....................................................................................
+let                it                      Lambda         Yes
+run                this                    Lambda         yes
+with               this                    Lambda         no
+apply              this                    Object         yes
+also               it                      Object         yes
+.....................................................................................
+Function name says that name of the scope function.
+Object reference says that how object properties are accessed inside scope lambda(it,this)
+Return value says that what is return value of scope functions values could be object itself(this) or lambda expression
+isExtension says that whether that scope is member function or extension function.
+
+These scope functions are available as part of "Any" class. so that these functions are available in every object.
+
+
+let :
+package com.wipro.kotlin.oo.scopefunctions.letfun
+
+data class User(var name: String = "", var location: String = "", var points: Int = 0) {
+    //biz logic
+    fun updateLocation(newLocation: String) {
+        location = newLocation
+    }
+
+    fun incrementPoints() {
+        points++
+    }
+}
+
+fun main() {
+    User(name = "Subramanian", location = "Coimbatore", points = 10).let {
+        println("Name ${it.name}")
+        println("Location ${it.location}")
+        println("Points ${it.points}")
+        //return object reference
+        it
+    }.let {
+        it.updateLocation("new Delhi")
+        it
+    }.let {
+        it.incrementPoints()
+        it
+    }.let {
+        println("Location ${it.location}")
+        println("Points ${it.points}")
+    }
+
+}
+
+...
+run:
+package com.wipro.kotlin.oo.scopefunctions.runfun
+
+data class User(var name: String = "", var location: String = "", var points: Int = 0) {
+    //biz logic
+    fun updateLocation(newLocation: String) {
+        location = newLocation
+    }
+
+    fun incrementPoints() {
+        points++
+    }
+}
+
+fun main() {
+    User(name = "Subramanian", location = "Coimbatore", points = 10).run {
+//        println("Name ${this.name}")
+//        println("Location ${this.location}")
+//        println("Points ${this.points}")
+                //in side run this keyword is implicit
+        println("Name ${name}")
+        println("Location ${location}")
+        println("Points ${points}")
+        //return
+        this
+    } .run {
+        updateLocation("New Delhi")
+        this
+    } .run {
+        incrementPoints()
+        this
+    } .run {
+        println("Name ${name}")
+        println("Location ${location}")
+        println("Points ${points}")
+    }
+}
+...
+with:
+package com.wipro.kotlin.oo.scopefunctions.withfun
+
+
+data class User(var name: String = "", var location: String = "", var points: Int = 0) {
+    //biz logic
+    fun updateLocation(newLocation: String) {
+        location = newLocation
+    }
+
+    fun incrementPoints() {
+        points++
+    }
+}
+
+fun main() {
+    //note: with can't be chained
+    with(User(name = "Subramanian", location = "Coimbatore", points = 10)) {
+//        println("Name ${this.name}")
+//        println("Location ${this.location}")
+//        println("Points ${this.points}")
+        println("Name ${name}")
+        println("Location ${location}")
+        println("Points ${points}")
+        this
+    }.run {
+        updateLocation("Chennai")
+        this
+    }.run {
+        incrementPoints()
+        this
+    }.run {
+        println("Name ${name}")
+        println("Location ${location}")
+        println("Points ${points}")
+    }
+
+}
+
+apply:
+ return value is implicit-this
+
+package com.wipro.kotlin.oo.scopefunctions.applyfun
+
+data class User(var name: String = "", var location: String = "", var points: Int = 0) {
+    //biz logic
+    fun updateLocation(newLocation: String) {
+        location = newLocation
+    }
+
+    fun incrementPoints() {
+        points++
+    }
+}
+
+fun main() {
+    User(name = "Subramanian", location = "Coimbatore", points = 10).apply {
+        //        println("Name ${this.name}")
+//        println("Location ${this.location}")
+//        println("Points ${this.points}")
+        //in side run this keyword is implicit
+        println("Name ${name}")
+        println("Location ${location}")
+        println("Points ${points}")
+        //dont need to return this keyword
+    }.apply {
+        updateLocation("Chennai")
+    }.apply {
+        incrementPoints()
+    }.apply {
+        println("Name ${name}")
+        println("Location ${location}")
+        println("Points ${points}")
+    }
+
+}
+
+
+also:
+ Same as apply but it
+ it is implicit.
+
+package com.wipro.kotlin.oo.scopefunctions.alsofun
+
+
+data class User(var name: String = "", var location: String = "", var points: Int = 0) {
+    //biz logic
+    fun updateLocation(newLocation: String) {
+        location = newLocation
+    }
+
+    fun incrementPoints() {
+        points++
+    }
+}
+
+fun main() {
+    User(name = "Subramanian", location = "Coimbatore", points = 10).also {
+        println("Name ${it.name}")
+        println("Location ${it.location}")
+        println("Points ${it.points}")
+        //dont need to return it keyword
+    }.also {
+        it.updateLocation("Chennai")
+    }.also {
+        it.incrementPoints()
+    }.also {
+        println("Name ${it.name}")
+        println("Location ${it.location}")
+        println("Points ${it.points}")
+    }
+
+    //mix:
+    with("subramanian".run {
+        uppercase()
+        trim()
+        this
+    }) {
+        println(length)
+    }
+}
+.....................................................................................
+			Operator Overloading
+.....................................................................................
+
+Operator overlading means we can use existing operators for different purposes let say
++ operator is used for arthmetic operations
+19+ 10  - Numerical computation
+
++ used to concat two strings or string with any value
+
+in order to implement operator over loading kotlin offers a function called "operator" function.
+
+operator function can be member function or extension function for an object
+
+package com.wipro.kotlin.oo.operatoroverloading
+
+class Person {
+    var skills: String? = null
+    fun show() = skills
+}
+
+//operator function
+operator infix fun Person.plus(person: Person): Person {
+    var newPerson = Person()
+    newPerson.skills = this.skills + person.skills
+    return newPerson
+}
+
+fun main() {
+    var person1 = Person()
+    person1.skills = "Kotlin"
+
+    var person2 = Person()
+    person2.skills = "Spring boot"
+    //coimbine or add
+    person1.plus(person2).apply {
+        println(show())
+    }
+    //built in operators have been overloaded.
+    var a = 10
+    print(a.plus(23))
+
+}
+.....................................................................................
+			  Generics
+.....................................................................................
+classes and functions in kotlin can have type parameters
+
+class Box<T>(t:T) {
+  var value  = t
+}
+
+package com.wipro.kotlin.oo.generics
+
+class Box<T>(t: T) {
+    var value = t
+}
+
+fun main() {
+    var box1: Box<Int> = Box(10)
+   // var box2: Box<Int> = Box("test")
+}
+................
+Generic functions:
+..................
+package com.wipro.kotlin.oo.generics
+
+interface Repository {
+    //generic function
+    fun <T> getById(id: T): T
+    fun <E> getAll(): List<E>
+}
+
+class RepositoryImpl : Repository {
+    override fun <T> getById(id: T): T {
+        return  id ;
+    }
+
+    override fun <E> getAll(): List<E> {
+        TODO("Not yet implemented")
+    }
+
+}
+
+fun main() {
+    var repository = RepositoryImpl()
+    repository.getById<String>("test")
+}
+.....................................................................................
+				Collections
+.....................................................................................
+
+1.Arrays
+2.List
+3.Set
+4.Map
 
 
 
+Arrays:
+package com.wipro.kotlin.collections
 
+fun main() {
+    var myIntArray = intArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    println(myIntArray.get(0))
+    myIntArray.forEach { println(it) }
+    val courses = arrayOf("Kotlin", "Java", "Scala", "Groovy")
+    courses.iterator().forEach { println(it) }
+}
 
+List:
+   Ordered collection
+    with elements by index
+    with elements by hashcode
+    with by insertion order.
 
+Set  
+  collection with unique elements - no duplicates
+  order is determined by natual order of the element
+  
+Map
+  set of key value pair
+  keys are unique,each of them maps exactly one value.
 
+collections types:
+1.immutable collection -  readonly collection
+3.mutable collection - with readonly collection with write operations.
 
+mutableList:
+package com.wipro.kotlin.collections
 
+fun main() {
+    var list = mutableListOf<Int>(1, 2, 4)
+    list.forEach(::println)
+    list.add(12)
+    list.add(233)
+    list.forEach(::println)
+    //scope functions
+    mutableListOf<Int>(1, 2, 4).apply {
+        add(13)
+        add(333)
+        add(20)
+    }.apply {
+        sortByDescending { it }
+    }.let {
+        println("After sorting")
+        it.forEach(::println)
+    }
 
+}
+
+Set:
+....
+package com.wipro.kotlin.collections
+
+fun main() {
+    mutableSetOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).apply {
+        add(12)
+        add(1)
+        add(3)
+        add(4)
+    }.let {
+        it.forEach(::println)
+    }
+}
+
+Map:
+....
+package com.wipro.kotlin.collections
+
+fun main() {
+    mutableMapOf<String, Int>("value1" to 100, "value 2" to 200).apply {
+        values.forEach(::println)
+        keys.forEach(::println)
+    }
+}
+.............
+
+Collection Processing:
+package com.wipro.kotlin.collections
+
+fun transformation() {
+    //readable
+    listOf<Int>(1, 2, 3, 4, 5).let {
+        it.forEach(::println)
+        it
+    }.let {
+        //double it
+        it.map { i -> i * 2 }.forEach(::println)
+    }
+}
+
+fun main() {
+    transformation()
+}
+.....................................................................................
 
 
 
