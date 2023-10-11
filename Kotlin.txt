@@ -3841,14 +3841,514 @@ fun main() {
     transformation()
 }
 .....................................................................................
+			Asynchronous Programming
+.....................................................................................
+For decades, the programmers we confronted with a problem to sovle - How to prevent our applications from blocking.
+Whether we are developing desktop applications,mobile apps,or even server-side app, we want to avoid having the user wait or what worse cause bottlenecs that would prevent an application from scalling.
+
+Java language itself provides non blocking io apis for performing non blocking operations.
+for eg if you read or write into socket or file system, it can be nonblocking ...
+
+Non blocking means the thread is not blocked for an io operation or not using multiple threads for performing network operations.
+
+java language provides java.nio package for performing non blocking operations.
+
+There are frameworks today available to build non blocking application.
+
+1.netty framework
+2.Apache MINA framework.
+
+
+On top of netty many frameworks
+
+1.vertx
+2.Quarkus
+3.Project Reactor-Spring
+
+Programming styles for building non blockings
+
+1.Threading
+2.callbacks
+3.Futures and Promises
+4.Reactive Extension - 
+5.Co Routines
+
+
+What is coroutines?
+ Coroutines are computer program components that allow execution to be suspended and resumed.generalizing subroutines for cooperative multitasking
+
+cooperative multitasking:
+
+   Cooperative multitasking, also known as non-preemptive multitasking, is a style of computer multitasking in which the operating system never initiates a context switch from a running process to another process.
+
+ Instead, in order to run multiple applications concurrently, processes voluntarily yield control periodically or when idle or logically blocked.
+
+coroutine is a function , when a co routine talks to another co routine function , first function is suspended, second function can be resumed...
+
+
+AFunction (){
+  AnotherFunction()-----------> Afunction is suspended AnotherFunctions gets executed
+
+}
+functions are cooperative each other by suspending and resuming each other....
+
+...................................................................................
+
+Coroutines getting started:
+
+Kotlin core language does not provide coroutine feature.
+
+implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+
+HelloWorld coroutine:
+package com.wipro.kotlin.coroutines
+
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
+//simple suspend function
+suspend fun sayHello() {
+    println("Hello is running in ${Thread.currentThread().name}")
+}
+
+
+fun main() {
+    println("main starts")
+    val scope = GlobalScope
+    scope.launch {
+        sayHello()
+    }
+
+    //pause the main thread for some time
+    Thread.sleep(5000)
+}
+
+Short cuts of Coroutine scopes
+package com.wipro.kotlin.coroutines
+
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+//simple suspend function
+suspend fun sayHello() {
+    println("Hello is running in ${Thread.currentThread().name}")
+}
+
+
+//fun main() {
+//    println("main starts")
+//    val scope = GlobalScope
+//    scope.launch {
+//        sayHello()
+//    }
+//
+//    //pause the main thread for some time
+//    Thread.sleep(5000)
+//}
+
+fun main() {
+    GlobalScope.launch {
+        sayHello()
+    }
+    Thread.sleep(5000)
+
+}
+//
+//fun main() = runBlocking {
+//    launch {
+//        sayHello()
+//    }
+//    println("main")
+//
+//}
+
+Here we have found "lanuch","runBlocking"
+  Coroutine builder.
+
+Coroutine builder is a function which creates a new Coroutines and binds in a scope.
+
+launch is builder, lauches new corutine concurrently with the rest of the code, which works continues to work independently.
+
+runBlocking is also coroutine builder that brideges the non-coroutine world of regular main function and the code with coroutines inside of runBlocking
+
+Launching coroutines are eq to threads
+
+in thread
+ thread.start()-----execution begins
+ GlobalScope.lanuch ---execution begins
+
+GlobalScope:
+
+public object GlobalScope : CoroutineScope 
+
+ A Global coroutinescope not bound to any job.
+ Global scope is used to lanuch any top level co-routines which are operating on the whole application lifetime and are not cancelled pre maturally.
+
+CoroutineScope:
+   This is top level
+.....................................................................................
+
+package com.wipro.kotlin.coroutines
+
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+suspend fun timer() {
+    //Thread.sleep(2000)
+    delay(2000)
+    println("Hello")
+}
+
+
+fun main() {
+
+    GlobalScope.launch {
+        timer();
+    }
+    println("world")
+    Thread.sleep(5000)
+}
+...................................................................................
+				Coroutine Builders
+....................................................................................
+
+It is a factory funtion to create a coroutine.
+Co routine builders can be called from normal functions like main, because they cant suspend themselves.
+
+1.lanuch
+ start new coroutine in the background and keep working....
+ lanuch returns Job Object
+2.runblocking
+   Blocks the current thread and waits for the other coroutines to finish its exection
+
+3.async
+   start new coroutine , performs async operations and return a "Defered" Object 
+   Which is eq to Promise object in javascript.
+   We can call "await" on the Defered value in order to wait and get the result.
+.................................................................................
+			Lanuch and Job
+....................................................................................
+package com.wipro.kotlin.coroutines.builders
+
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+fun main() = runBlocking {
+    var job: Job = launch {
+        delay(1000L)
+        println("world!")
+    }
+    println("Hello")
+    job.join();
+    println("done")
+
+}
+.....................................................................................
+		  Compare Threads and coroutines
+.....................................................................................
 
 
 
+package com.wipro.kotlin.coroutines.builders
+
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.concurrent.thread
+
+//Thread code
+fun main() {
+    //we should wrap this code with context of coroutine
+//    repeat(1000000) {
+//        thread(name="mythread") {
+//            Thread.sleep(500)
+//            print("*\n")
+//        }
+//    }
+
+    //cpu intensive task must be executed with in coroutine
+    runBlocking {
+        repeat(100000) {
+            var job = GlobalScope.launch {
+                delay(100)
+                println("*")
+            }
+            job.join()
+        }
+    }
+}
+...................................................................................
+			 Multiple Coroutine jobs
+...................................................................................
+
+package com.wipro.kotlin.coroutines.builders
+
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+fun main() {
+    runBlocking {
+        var job1 = GlobalScope.launch {
+            println("Job1 Thread : ${Thread.currentThread().name}")
+        }
+        job1.join()
+        var job2 = GlobalScope.launch {
+            println("Job2 Thread : ${Thread.currentThread().name}")
+
+        }
+        job2.join()
+        var job3 = GlobalScope.launch {
+            println("Job3 Thread : ${Thread.currentThread().name}")
+        }
+        job3.join()
+    }
+}
+.................................................................................
+			Cancel Coroutine and How to enable Timeouts
+////////////////////////////////////////////////////////////////////////////////////
+
+
+In long running application you might need fine-grained control on your backroutines
+
+for eg:
+ User might have closed the page, that launched a coroutine still it is running and also its result is no longer needed and it has to be cancelled.
+
+
+How to cancel coroutine?
+package com.wipro.kotlin.coroutines.builders
+
+import kotlinx.coroutines.*
+
+
+fun main() {
+
+    runBlocking {
+        var job1 = GlobalScope.launch {
+            repeat(1000) {
+                println("job : I am sleeping $it")
+                delay(500L)
+            }
+        }
+        delay(1300L)
+        println("Main : i m tired of waiting!")
+//        job1.cancel()
+//        job1.join()
+        job1.cancelAndJoin()
+        println("main: now i can be happy, good bye")
+    }
+}
+
+....................................................................................
+			  Timeouts
+/////////////////////////////////////////////////////////////////////////////////////
+
+if you dont want to run the coroutine beyond the time you expect.
+
+lets say i want to run coroutine within 200ms , beyond it, cancel the coroutine.
 
 
 
-	
-	
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+
+fun main() {
+    runBlocking {
+        withTimeout(1500L) {
+            repeat(1000){
+                println("job : I am sleeping $it")
+                delay(500)
+            }
+        }
+    }
+}
+Exception in thread "main" kotlinx.coroutines.TimeoutCancellationException: Timed out waiting for 1500 ms
+	at kotlinx.coroutines.TimeoutKt.TimeoutCancellationException(Timeout.kt:191)
+	at kotlinx.coroutines.TimeoutCoroutine.run(Timeout.kt:159)
+	at kotlinx.coroutines.EventLoopImplBase$DelayedRunnableTask.run(EventLoop.common.kt:501)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:280)
+	at kotlinx.coroutines.DefaultExecutor.run(DefaultExecutor.kt:109)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+
+what if i dont exception
+
+package com.wipro.kotlin.coroutines.builders
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
+
+fun main() {
+    runBlocking {
+       var result = withTimeoutOrNull(1500L) {
+            repeat(1000){
+                println("job : I am sleeping $it")
+                delay(500)
+            }
+        }
+        println("$result")
+    }
+}
+.....................................................................................
+			   async builder
+.....................................................................................
+
+creates a coroutine and returns its future result as an implementation of "Defered"
+
+async and launch is similar where async returns value to caller, lanuch does not return values.
+
+fun async():Defered<T>
+
+Defered value is  a non blocking cancellable future-It is job with Result.
+
+Getting result:
+  await
+     Pause the current exection until the result is available without blocking the current thread and resumes the defered computation is completed
+
+package com.wipro.kotlin.coroutines.builders
+
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+
+fun main() {
+    runBlocking {
+        val res: Deferred<String> = async {
+            println("Hello async")
+            delay(5000L)
+            //Return value: value type can be anything
+            "Hello,How are you, i am from Future"
+        }
+        res.join()
+        println("Value ${res.await()}")
+    }
+}
+.....................................................................................
+			Sequential Composition and concurrent compostion 
+....................................................................................
+
+Sequential compostion means calling suspend functions one by one in nonblocking, get result 
+
+Concurrent compostion means calling suspend functions parallelly , get result finally.
+
+package com.wipro.kotlin.coroutines.builders
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
+
+
+suspend fun getvalueOne(): Int {
+    delay(1000L)
+    return 10
+}
+
+suspend fun getvalueTwo(): Int {
+    delay(1000L)
+    return 122
+}
+
+@OptIn(ExperimentalTime::class)
+fun main() {
+    runBlocking {
+        var time = measureTime {
+            var task1 = getvalueOne()
+            var task2 = getvalueTwo()
+            println("The Result is ${task1 + task2}")
+        }
+        println("Time taken for all tasks is $time")
+    }
+}
+
+The Result is 132
+Time taken for all tasks is 2.012886s
+...................................................................................
+			 async compostion
+...................................................................................
+package com.wipro.kotlin.coroutines.builders
+
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
+
+
+suspend fun getValOne(): Int {
+    delay(1000L)
+    return 10
+}
+
+suspend fun getValTwo(): Int {
+    delay(1000L)
+    return 122
+}
+
+@OptIn(ExperimentalTime::class)
+fun main() {
+    runBlocking {
+        var time = measureTime {
+            var task1 = async { getvalueOne() }
+            var task2 = async { getvalueTwo() }
+            println("The Result is ${task1.await() + task2.await()}")
+        }
+        println("Time taken for all tasks is $time")
+    }
+}
+The Result is 132
+Time taken for all tasks is 1.024629400s
+..................................................................................	
+			 How to start coroutine Lazy
+...................................................................................
+Any coroutine is started execution immediately as soon as it is lanuched
+
+if you want to start coroutine based on some activity like clicking button, chaning tabs.
+	package com.wipro.kotlin.coroutines.builders.lazy
+
+import kotlinx.coroutines.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
+
+
+suspend fun getValOne(): Int {
+    delay(1000L)
+    return 10
+}
+
+suspend fun getValTwo(): Int {
+    delay(1000L)
+    return 122
+}
+
+@OptIn(ExperimentalTime::class)
+fun main() {
+    runBlocking {
+        var time = measureTime {
+            var task1 = async(start = CoroutineStart.LAZY) { getValOne() }
+            var task2 = async(start = CoroutineStart.LAZY) { getValTwo() }
+            launch {
+                delay(5000L)
+                task1.start()
+                task2.start()
+                println("The Result is ${task1.await() + task2.await()}")
+            }
+        }
+        println("Time taken for all tasks is $time")
+    }
+}
+................................................................................
+			Streaming - Channels and Flows
+.................................................................................
 
 
 
