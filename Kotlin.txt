@@ -4346,9 +4346,325 @@ fun main() {
         println("Time taken for all tasks is $time")
     }
 }
-................................................................................
-			Streaming - Channels and Flows
+.....................................................................................
+			Dispatchers and threads
 .................................................................................
+The coroutine context includes coroutine dispatcher that determines what thread or threads  the correponding coruoutine uses for its execution.
+
+How to use Dispatchers ?
+ package com.wipro.kotlin.coroutines.dispatchers
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+fun main() {
+    runBlocking {
+        launch {
+            println("main run Blocking : i am working in thread ${Thread.currentThread().name}")
+        }
+        launch(Dispatchers.Default) {
+            println("Default  : i am working in thread ${Thread.currentThread().name}")
+        }
+        launch(Dispatchers.IO) {
+            //networking code, database logic
+            println("IO  : i am working in thread ${Thread.currentThread().name}")
+
+        }
+
+    }
+}
+.....................................................................................
+			Sync and async multiple values
+...................................................................................
+Mutliple values can be returned in kotlin using collections.
+package com.wipro.kotlin.coroutines.sequences
+
+fun simple(): List<Int> = listOf(1, 2, 3, 4)
+
+fun main() {
+    simple().forEach { value -> println(value) }
+}
+
+Async way of returning list of values
+
+sequence builder:
+................
+package com.wipro.kotlin.coroutines.sequences
+
+import kotlinx.coroutines.delay
+
+fun simple(): List<Int> = listOf(1, 2, 3, 4)
+
+//
+fun asyncList(): Sequence<Int> = sequence {
+    for (i in listOf<Int>(1, 2, 3, 4)) {
+        Thread.sleep(500)
+        //return sequence of values
+        yield(i)
+    }
+}
+
+fun main() {
+    //simple().forEach { value -> println(value) }
+    asyncList().forEach { value -> println(value) }
+}
+....................................................................................
+			Streaming using Flows and Channles
+.....................................................................................
+
+Channels are way to transmit "Defered Single" between coroutines.
+Flows are way to transmit "Defered sequence of(more) values" between coroutines.
+
+There are two methods in channels ; suspend send method and suspend receive method
+
+package com.wipro.kotlin.coroutines.channels
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+fun main() {
+    GlobalScope.launch {
+        //create a channel
+        val channel = Channel<Int>()
+        //send data async in coroutine
+        launch(Dispatchers.Default) {
+            //publish data inside one coroutine
+            println("Publishing in ${Thread.currentThread().name}")
+            for (i in 10 downTo 0) channel.send(i)
+        }
+
+        //Receiving
+        launch(Dispatchers.IO) {
+            println("Receiving from ${Thread.currentThread().name}")
+            for (j in channel) println("downloading $j")
+        }
+    }
+    Thread.sleep(10000L)
+}
+.....................................................................................
+	 Streaming-Multi Values Exchaning between coroutines
+	   		(Emit and Collect)
+....................................................................................
+
+What is Flow?
+  A supend function can return a single value but what if i want to return multiple asynchronously computed values(sequence of values)?
+That is where the Flow comes into picture.
+
+Mutli values can be represented by using collections...
+package com.wipro.kotlin.coroutines.flows
+
+import kotlinx.coroutines.runBlocking
+
+//Blocking sequence
+//fun getValues(): Sequence<Int> = sequence {
+//    for (i in 1..10) {
+//        Thread.sleep(100)
+//        yield(i)
+//    }
+//}
+
+suspend fun getValues(): List<Int> = listOf(1, 2, 3)
+fun main() {
+    runBlocking {
+        getValues().forEach(::println)
+    }
+}
+
+Here we have achived async, but data is returned in one short.
+
+what if i want stream of values - Flow:
+
+Flow == sequence with async operation.
+package com.wipro.kotlin.coroutines.flows
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+fun getAsynValue(): Flow<Int> = flow {
+    for (i in 1..10) {
+        delay(100)
+        println(Thread.currentThread().name)
+        emit(i)
+    }
+}
+
+fun main() {
+    runBlocking(Dispatchers.IO) {
+        launch {
+            //collect values
+            getAsynValue().collect { value -> println("Got $value") }
+        }
+    }
+}
+...................................................................................
+			How to cancel flow : with timeout or withTimeoutNull.
+
+package com.wipro.kotlin.coroutines.flows
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
+
+fun doSomething(): Flow<Int> = flow {
+    for (i in 1..10) {
+        delay(100)
+        println(Thread.currentThread().name)
+        emit(i)
+    }
+}
+
+fun main() {
+    runBlocking {
+        withTimeoutOrNull(200) {
+            doSomething().collect { value -> println("Got $value") }
+
+        }
+    }
+}
+...................................................................................
+			  Flow Builders
+....................................................................................
+
+The flow {} builder from the previous concept is most basic one, There are other builders too.
+
+1.flowOf -  emits a fixed set of values
+2.asFlow -- collections and sequences can be converted into flow
+
+package com.wipro.kotlin.coroutines.flows
+
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.runBlocking
+
+fun main() {
+    runBlocking {
+        listOf<Int>(1, 2, 3, 4, 5).asFlow().collect {
+            println("$it")
+        }
+    }
+
+}
+.....................................................................................
+			  Flow Operators
+.....................................................................................
+
+Flows can be transformed using operators, in the same way you would transform collections and sequnces...
+
+map
+
+package com.wipro.kotlin.coroutines.flows
+
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
+
+fun main() {
+    runBlocking {
+        listOf<Int>(1, 2, 3, 4, 5).asFlow().map { it * 2 }.collect {
+            println("$it")
+        }
+    }
+}
+....................................................................................
+		  Spring Boot Integration with kotlin
+
+1.create project with kotlin language support.
+2.start writing controller and functions
+
+package com.example.demo
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class DemoApplication
+
+fun main(args: Array<String>) {
+	runApplication<DemoApplication>(*args)
+}
+
+
+package com.example.demo
+
+import com.example.demo.entity.User
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("users")
+class UserController {
+
+    @GetMapping
+    fun findAll(): List<User> {
+        return listOf(User(1, firstName = "Subramanian", lastName = "Murugan"))
+    }
+}
+package com.example.demo.entity
+
+//@Entity
+data class User(val id: Int, val firstName: String, val lastName: String)
+/////////////////////////////////////////////////////////////////////////////////////
+			Spring boot with Coroutine Integration
+.....................................................................................
+
+Depedencies:
+
+dependencies {
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("io.projectreactor:reactor-test")
+}
+	
+package com.example.mycoroutine
+
+import kotlinx.coroutines.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+class CoRoutinesRestController {
+
+    @GetMapping("/name")
+    fun sayMyname(): String {
+        println("sayMyname: ${Thread.currentThread().name}")
+        return "My Name is Subramanian"
+    }
+
+    @GetMapping("/hello")
+    suspend fun getValue(): String {
+        println("Hello: ${Thread.currentThread().name}")
+        delay(10000L)
+        return "Hello"
+    }
+
+    @GetMapping("/city")
+    suspend fun sayMyCity(): String {
+        val res = GlobalScope.async(Dispatchers.IO) {
+            delay(500)
+            println("sayMyCity: ${Thread.currentThread().name}")
+            "Coimbatore"
+        }
+        return res.await()
+
+    }
+}
+
+
 
 
 
