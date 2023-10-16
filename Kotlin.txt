@@ -4663,31 +4663,751 @@ class CoRoutinesRestController {
 
     }
 }
+.....................................................................................
+			Reactive Programming - Project Reactor
+.....................................................................................
+What is reactive programming?
+
+In computing, reactive programming is a declarative programming paradigm concerned with data streams and the propagation of change.
+
+->declarative programming
+->data streams
+->propagation of change
+
+
+What is Reactive?
+
+  Oxford dictionary defines reactive  as "showing a response to a stimulus"
+
+Response :  The result
+Stimuls : trigger/actions ---Events
+
+Get Response because of some events --- event driven programming model.
+
+Event dirven programming is extension of  object oriented programming.
+
+ Observer Pattern is one of the behavioral design pattern. Observer design pattern is useful when you are interested in the state of an object and want to get notified whenever there is any change.
+
+ In observer pattern, the object that watch on the state of another object are called Observer and the object that is being watched is called Subject.
+
+
+Iterator Design pattern:
+	Iterator design pattern in one of the behavioral pattern. Iterator pattern is used to provide a standard way to traverse through a group of Objects.
+
+Iterator Pattern : Pull model
+
+caller 
+
+class ProductConsumer{
+  private ProductProvider provider;
+
+  public void getProduct(){
+	provider.getProducts().forEach(...)
+  }
+
+}
+
+//callee
+
+class ProductProvider { 
+
+  public List<Product> getProducts(){ 
+
+	return List.of(new Product(),new Product(),new Product());
+  }
+
+}
+....................................................................................
+
+Reactive Programming =  Observer Design pattern + push iterator pattern + declarative programming.
+
+How objects communicate
+
+      
+  By passing messages via method calls with intermediate object (Event).
+
+
+Publisher sends/publishes data with events via broker called notfication interface to subcribers
 
 
 
 
+				Publisher/Owner/Producer
+					|
+				     data + event(Event)
+					|
+			       Event Notification Interface
+					|
+	      -----------------------------------------------------------------			
+	     |                   |          |           |
+          Listeners            Subscriber  Subscriber Subscriber
 
 
-   
+Subscribers are objects who are listening for events, once event is given, who process event and consume take.
+
+Legacy observer design pattern has only 1 thing
+
+  1.they will be able to send only data
+
+Have not addresssed the following
+  1.what if error is produced
+  2.what if the producer has stopped producing values. 
+
+Reactive programming address the above issues.
+
+Producer can send data,error, complete - events/signals
+
+				Publisher/Owner/Producer <---------Data Source(Device)
+					|
+				 data / error  & complete
+					|
+			       Event Notification Interface
+					|
+			------------------------------------- channels
+			|               |                  |
+                     data              error              complete
+
+			|		|		   |
+			------------------------------------
+					  |
+				      Subscriber
+			
+
+Iterator Design Pattern design:
+
+				   DataSource-List/Collection -Object
+				    (1,2,3,4,5,6,7,8,9,10)
+					  |
+				Iterator - PULL Alogorthim- get/read/request(1)
+					   |
+				 Subscribers -add into HTTP OUTPUTSTREAM-1,2
+
+PULL Based iterator , is default iterator already implemented in many languages.
+
+Drawbacks of pull based iterator :
+
+1.both object should sync each other.
+2.only data will be pulled via iterator.next/get/read/request call
+3.Errors are handled via try...catch.
+4.No complete signal is given.
+5.all data must be loaded in advance- memory waste
+6.live data may not be processed on fly.
+
+
+PUSH BASED Iterator :  Reactive Implementation.
 
 
 
+	          Publisher/Owner/Producer <---------Data Source(Device)
+					|
+				  push data into memory over time.
+					|
+				  -----------------------------
+                                      1---2---3--4--error--5--|-->
+				  ------------------------------
+                        		|    
+				   emit event data,data -complete           	
+			
+				 data / error  & complete
+					|
+			       Event Notification Interface
+					|
+			------------------------------------- channels
+			|               |                  |
+                     data              error              complete
+
+			|		|		   |
+			------------------------------------
+					  |
+				      Subscriber
+
+
+ When error or complete signal is given, channel will be closed.
+
+Reactive Programs are functional style based.
+
+ -Pure functions
+ -Immutablity
+ -Higher order functions: function composition.
+
+Reactive  = {observable + iterator(push) + functional style} 
+
+Reactive is just spec, what about implementation? who has given this implementation.
+
+Reactive spec initally implemented not as open source project , by netflex ->
+  RxJava 1.0 - open source.
+
+Once Rxjava other extensions came into market,developer started building reactive application.
+
+one point of time, people had confusion.
+
+Whether my system is Reactive?
+
+Many companies like ms,google,netflex,amzon....joined together who published one spec
+https://www.reactivemanifesto.org/
+
+
+Where is reactive Programming ? Use case of Reactive Programming?
+
+
+   ********Data  Streaming and Processing in blocking and nonblocking *******
+
+Data Processing  y comapare with Batch processing.....
+
+Pipe lines : streaming of data.
+
+Stream :
+
+     Sequence of data / flow of data which is supplied and consumed .
+
+Stream Types:
+
+1.Source Stream
+2.Intermediate Stream 
+
+ ->Up Stream
+ ->Down Stream
+
+
+Core Concepts in Reactive Programming:
+......................................
+
+1.Publisher
+   Publisher is Object
+2.Subscriber
+   Subscriber is also Object
+3.Stream
+  logical representation of data movement
+
+Java and Reactive Programming implementation:
+ 
+Reactive programming spec 
+
+1.Rxjava 1.x
+2.Rxjava 2.x,Rx 3, Rx 4
+3.Project Reactor
+4.Java 9 onwards
+5.Mutiny
+
+....................................................................................
+			 Reactive Streams
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+https://www.reactive-streams.org/
+
+ It is spec created for java applications for processing events.
+
+.....................................................................................
+  			Birth of Project Reactor
+
+
+Project Reactor born with 
+- simple , meaning full Publisher apis
+- BackPressure Ready
+- Non Blocking Ready-Netty Engine integration.
+- fully reactive stream implementation
+.....................................................................................
+
+Project Reactor implementation:
+
+Project Setup with Java:
+........................
+
+Create maven project.
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>reactiveapps</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.4.16</version>
+        </dependency>
+    </dependencies>
+
+</project>
+.....................................................................................
+				Project Reactor core concepts
+
+
+1.Publisher 
+2.Subscriber
+3.Subscription
+4.Operators
+
+1.Publisher is object who publish events.
+
+Project Reactor Types:(Publisher Types)
+
+1.Mono 
+  Publisher can publish 0 to 1 Result
+2.Flux 
+  Publisher can publish 0 to N items
+
+
+Publisher is emitter who emits data
+
+Subscriber is receiving data.
+
+Subscription is "session" between Producer and Subscriber
+
+Processor = Publisher + Subscribers  : acting as publishers and subscribers.
+
+Operators are api to create,transform,filter,merge,join stream of data.
+....................................................................................
+		Project reactor is based on "Reactive Stream Spec"
+.....................................................................................
+
+reactive Streams api;
+
+package org.reactivestreams;
+
+public interface Publisher<T> {
+    void subscribe(Subscriber<? super T> var1);
+}
+
+reactor extension
+
+package reactor.core;
+
+import org.reactivestreams.Publisher;
+
+public interface CorePublisher<T> extends Publisher<T> {
+    void subscribe(CoreSubscriber<? super T> var1);
+}
+implementation class
+
+public abstract class Mono<T> implements CorePublisher<T> {
+....
+}
+public abstract class Flux<T> implements CorePublisher<T> {
+....
+}
+
+
+Subscribers:
+
+package org.reactivestreams;
+
+public interface Subscriber<T> {
+    void onSubscribe(Subscription var1);
+
+    void onNext(T var1);
+
+    void onError(Throwable var1);
+
+    void onComplete();
+}
+
+package reactor.core;
+
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+import reactor.util.context.Context;
+
+public interface CoreSubscriber<T> extends Subscriber<T> {
+    default Context currentContext() {
+        return Context.empty();
+    }
+
+    void onSubscribe(Subscription var1);
+}
+
+
+Subscription:
+.............
+  Session between Producer and Subscriber
+
+
+public interface Subscription {
+    void request(long var1); // how many elements subscriber can handle: kind of backPressure
+
+    void cancel(); // to close session between Producer and subscriber.
+}
+.....................................................................................
+				Flux
+.....................................................................................
+
+Create Flux
+Emit events
+Subscribe and listen for data
+
+Create Flux:
+ Flux can be created using various ways- creation operators...
+
+Every creation operators are static methods.
+package com.wipro.reactor.creations;
+
+import reactor.core.publisher.Flux;
+
+public class FluxPublisherCreate {
+    public static void main(String[] args) {
+        //create Flux
+        Flux<Integer> producer = Flux.create(fluxSink -> {
+            //emit event : push item into stream(pipelien),later we attach listener to listen for data
+            fluxSink.next(1); //emit event and send data
+            fluxSink.next(2);
+            fluxSink.next(3);
+            fluxSink.next(4);
+            fluxSink.complete(); //no more data...
+        });
+        //subscriber or caller
+        //producer.log().subscribe();
+        producer.subscribe(data -> System.out.println(data));
+    }
+}
+
+Just;
+package com.wipro.reactor.creations;
+
+import reactor.core.publisher.Flux;
+
+public class FluxJust {
+    public static void main(String[] args) {
+        Flux.just(1, 2, 3, 4, 5, 6).subscribe(integer -> {
+            System.out.println(integer);
+        });
+        Flux.just("subramanian","murugan","karthik").subscribe(name -> {
+            System.out.println(name);
+        });
+    }
+}
+
+List :
+package com.wipro.reactor.creations;
+
+import reactor.core.publisher.Flux;
+
+import java.util.List;
+
+public class ListImpl {
+    public static void main(String[] args) {
+        List<Integer> integerList = List.of(1, 2, 3, 4, 5);
+        Flux.fromIterable(integerList).subscribe(item -> {
+            System.out.println(item);
+        });
+
+        Integer[] data = {1, 2, 3, 4, 5};
+        Flux<Integer> producerArray = Flux.fromArray(data);
+        producerArray.subscribe(integer -> {
+            System.out.println(integer);
+        });
+
+        //sequence of numbers from start to end : range
+        Flux<Integer> rangeProducer = Flux.range(1, 100);
+        rangeProducer.subscribe(r -> {
+            System.out.println(r);
+        });
+    }
+}
+
+Subscribe methods :
+
+Overloaded version of subscribe:
+
+subscribe(); 
+
+subscribe(Consumer<? super T> consumer); 
+
+subscribe(Consumer<? super T> consumer,
+          Consumer<? super Throwable> errorConsumer); 
+
+subscribe(Consumer<? super T> consumer,
+          Consumer<? super Throwable> errorConsumer,
+          Runnable completeConsumer); 
 
 
 
+Subscribe and trigger the sequence.
+Do something with each produced value.
+Deal with values but also react to an error.
+Deal with values and errors but also run some code when the sequence successfully completes.
+Deal with values and errors and successful completion but also do something with the Subscription produced by this subscribe call.
+
+sink:
+ go down below the surface of something, especially of a liquid; become submerged.
+
+
+Subscription Eg:
+When stream will closed?
+ - once exception is thrown
+ - once complete is called.
 
 
 
+Subscriber life cycle methods:
+..............................
+org.reactivestreams.Subscriber
+
+1.onSubscribe
+    is called when subscriber subcribes to producer. : init
+
+2.OnNext
+    is called for each Chunk of data requested.
+3.OnError
+    is called for if any error signal is propagated
+
+4.onComplete
+   is called for if any complete signal is triggered.
+
+...................................................................................
+				Back Pressure
+..................................................................................
+
+When upstream is fast than down stream - back pressure happens.
+
+What will happen when back pressure happens?
+  Data loss.
+
+Reactive Streams gives power to handle back pressure.
+
+As we have seen , reactive systems are  "push" based, that means publisher keep on publishing events without worrying about consumers.
+
+Reactive streams introduced new concept called "pull" programming "reactive pull".
+
+Reactive pull ===> push + pull
+
+Consumer can pull data when ever he wants, consumer now can handle pressure by sending request to "upstreams" that give me this much data only....
 
 
+Subscription:
+ 
+ Interface is used to control data flow between source(up) stream to subscriber(down stream)
+
+ request(unbounded) ---Subscriber has no concern regarding, how many elements he is interested.
+
+ request(long N) - request(3) -- request 3 elements only.
+
+producer.log().subscribe(new Subscriber<Integer>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                System.out.println("Subscription is done");
+                //ask the upstream how many elements you want
+                //s.request(3); //requests only 3 elements
+                //request all elements
+                s.request(Long.MAX_VALUE); // request(unbound)
+            }
+
+            @Override
+            public void onNext(Integer value) {
+                System.out.println("Data " + value);
+
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                System.out.println("Error  " + t.getMessage());
+
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println("Completed ");
+
+            }
+        });
 
 
+Lambda with Subscription:
+subscribe(Consumer<? super T> consumer,
+          Consumer<? super Throwable> errorConsumer,
+          Runnable completeConsumer,Consumer<?super Subscription> subscriptionConsumer); 
 
+      //lambda with subscription
+        producer.subscribe(data -> {
+            System.out.println(data);
+        }, err -> {
+            System.out.println(err);
+        }, () -> System.out.println("Stream Completed"),subscription -> {
+            subscription.request(2);
+        });
 
+package com.wipro.reactor.creations;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+import reactor.core.publisher.Flux;
 
+public class BackPressureHandling {
+    public static void main(String[] args) {
+        Flux.range(1, 1000).subscribe(
+                new Subscriber<Integer>() {
+                    @Override
+                    public void onSubscribe(Subscription subscription) {
+                        //backpressure code
+                        subscription.request(3);
+                    }
 
+                    @Override
+                    public void onNext(Integer integer) {
+                        System.out.println(integer);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        System.out.println(throwable.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        System.out.println("Completed");
+                    }
+                }
+        );
+    }
+}
+.....................................................................................
+			how to handle data,error,complete without using subscribe
+....................................................................................
+We have utility methods.
+
+package com.wipro.reactor.creations;
+
+import reactor.core.publisher.Flux;
+
+public class UtiltiyMethods {
+    public static void main(String[] args) {
+
+        Flux.range(1, 10).doOnSubscribe(sub -> {
+            System.out.println("doOn Subscription");
+        }).doOnNext(data -> {
+            System.out.println("doOnNext " + data);
+        }).doOnRequest(n -> {
+            System.out.println(n);
+        }).doOnError(err -> {
+            System.out.println("doOnError " + err);
+        }).doOnComplete(() -> {
+            System.out.println("doOnComplete");
+        }).log().subscribe();
+
+    }
+}
+.....................................................................................
+			 Stream Processing -Flux
+.....................................................................................
+Operators:
+
+map : transformation operator : which transforms data,returns new Producer.
+package com.wipro.reactor.processing;
+
+import reactor.core.publisher.Flux;
+
+import java.util.function.Function;
+
+public class Trasnformation {
+    public static void main(String[] args) {
+        //Flux.range(1, 10).map(i -> i * 2).log().subscribe();
+        Function<Integer, Integer> multiplyByTen = (x) -> x * 10;
+        Flux.range(1, 10).map(multiplyByTen).log().subscribe();
+    }
+}
+filter:
+ Predicate : Apply boolean function, if it is true, then only it will move down stream.
+package com.wipro.reactor.processing;
+
+import reactor.core.publisher.Flux;
+
+public class Filter {
+    public static void main(String[] args) {
+        Flux.range(1, 10).filter(i -> i % 2 == 0).log().subscribe();
+    }
+}
+
+How to create sequence of operators(coimbine operators)..
+
+  source--->map-->filter-->subscribe
+
+ map is called for every element
+ filter is called if condition is true.
+package com.wipro.reactor.processing;
+
+import reactor.core.publisher.Flux;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+public class MapFilterOperator {
+    public static void main(String[] args) {
+        Function<Integer, Integer> multiplyByTen = (x) -> x * 3;
+        Predicate<Integer> testEven = x -> x % 2 != 0;
+        Flux.range(1, 10).map(multiplyByTen).filter(testEven).log().subscribe();
+    }
+}
+Nested Flux:
+
+ Flex<Flex>
+
+map- transformation operator , which transform items and retuns new stream.
+
+flatMap is inspisired from nested arrays in javascript
+
+  [
+    [
+    
+    ]
+  ]
+how to process nested array, we have write inner loop.
+   -flatting process ==> converting nested array into single array.
+
+package com.wipro.reactor.processing;
+
+import reactor.core.publisher.Flux;
+
+public class Flatting {
+    public static void main(String[] args) {
+        Flux<String> stream1 = Flux.just("Hello", "Hi", "How are you", "What about you");
+        stream1.map(item -> item).log().subscribe();
+
+        stream1.flatMap(item -> {
+            return Flux.just(item + "World");
+        }).log().subscribe(System.out::println);
+    }
+}
+
+Complex processing:
+package com.wipro.reactor.processing;
+
+import reactor.core.publisher.Flux;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class FlatMapCoimbined {
+    public static void main(String[] args) {
+        List<String> words = Arrays.asList("the", "quick", "brown", "fox", "jumped", "over", "the", "lazy", "dog");
+        Flux<String> fewWords = Flux.just("Hello", "World");
+        Flux<String> manyWords = Flux.fromIterable(words);
+        //complex biz logic with declarative approach.
+        Flux<String> manyLetters = Flux
+                .fromIterable(words)
+                .log()
+                .flatMap(word -> Flux.just(word))
+                .log()
+                .distinct()
+                .log()
+                .sort()
+                .log()
+                .zipWith(Flux.range(1, Integer.MAX_VALUE),
+                        (string, count) -> String.format("%2d. %s", count, string));
+
+        manyLetters.log().subscribe(System.out::println);
+    }
+}
+.....................................................................................
 
 
 
