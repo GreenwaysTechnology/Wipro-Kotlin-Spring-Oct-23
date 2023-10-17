@@ -5408,6 +5408,541 @@ public class FlatMapCoimbined {
     }
 }
 .....................................................................................
+				 Mono - o ... 1 Item
+..................................................................................
+package com.wipro.reactor.creations;
+
+import reactor.core.publisher.Mono;
+
+public class MonoCreateOperator {
+    public static void main(String[] args) {
+        Mono<String> single = Mono.create(monoSink -> {
+            monoSink.success("Hello");
+        });
+        single.subscribe(data -> {
+            System.out.println("data " + data);
+        }, err -> System.out.println("Errror " + err.getMessage()));
+
+        //Mono Creation operators
+        Mono.just("How are you?").log().subscribe();
+        //no value
+        Mono.empty().log().subscribe();
+        
+        Mono.error(new RuntimeException("something went wrong")).log().subscribe();
+
+
+    }
+}
+..
+MonoWith Delay:
+...............
+package com.wipro.reactor.creations;
+
+import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+
+public class MonoWithDelay {
+    public static void main(String[] args) {
+        Mono.just("Hello, I am delayed")
+                .delayElement(Duration.ofSeconds(2))
+                .doOnSuccess(System.out::println)
+                .log()
+                .block(); //block this thread until result is available.
+
+    }
+}
+....................................................................................
+
+Threading and Reactor Concurrency(declarative Concurrency):
+...........................................................
+In general , Stream processing happens in main thread. suppose if you want to deligate
+the stream process in a separate thread.
+
+Why separate thread of execution?
+ Concurrency.
+
+How to implement conncurrency?
+
+1.Using plain vannila thread implementation: not recommended 
+2.Using Schedulers : highly recommended.
+
+Schedulers are similar to an ExecutorService in plain java. but Shedulers has been designed for Reactive Exection.
+
+
+The Schedulers class has static methods that give access to the following execution contexts:
+...............................................................................................
+The current thread (Schedulers.immediate()).
+
+A single, reusable thread (Schedulers.single()).
+
+Note that this method reuses the same thread for all callers, until the Scheduler is disposed. If you want a per-call dedicated thread, use Schedulers.newSingle() for each call.
+
+
+An elastic thread pool (Schedulers.elastic()). It creates new worker pools as needed, and reuse idle ones.
+ Worker pools that stay idle for too long (default is 60s) are disposed. This is a good choice for I/O blocking work for instance. Schedulers.elastic() is a handy way to give a blocking process its own thread, so that it does not tie up other resources.
+
+a fixed pool of workers that is tuned for parallel work (Schedulers.parallel()). It creates as many workers as you have CPU cores
+
+  Scheduler mys = Schedulers.newSingle("test");
+        Mono.just("Hello, I am delayed")
+                .delayElement(Duration.ofSeconds(2),Schedulers.newElastic("xxx"))
+                .doOnSuccess(System.out::println)
+                .log()
+                .block(Duration.ofSeconds(10)); //block this thread until result is available.
+
+
+package com.wipro.reactor.schedulers;
+
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+
+public class PublishOnOperator {
+    public static void main(String[] args) {
+        Scheduler s = Schedulers.newParallel("parallel-scheduler", 5);
+        Flux<Integer> flux = Flux.range(1, 5)
+                .map(i -> {
+                    System.out.println("First Map -> " + Thread.currentThread().getName() + " " + i);
+                    return i * 10;
+                })
+                .publishOn(s) //downstream only take this thread
+                .map(i -> {
+                    System.out.println("Second Map -> " + Thread.currentThread().getName());
+                    return i + 2;
+                });
+        flux.subscribe(System.out::println);
+    }
+}
+
+subscribeOn
+ applies to the subscription process,
+ no mater where you place the subscribeOn in the chain.
+ It always affects context of the source emission.
+package com.wipro.reactor.schedulers;
+
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+
+public class SubscribeOnOperator {
+    public static void main(String[] args) {
+        Scheduler s = Schedulers.newParallel("parallel-scheduler", 5);
+        Flux<Integer> flux = Flux.range(1, 5)
+                .subscribeOn(s)
+                .map(i -> {
+                    System.out.println("First Map -> " + Thread.currentThread().getName() + " " + i);
+                    return i * 10;
+                })
+                .publishOn(Schedulers.boundedElastic())
+                .map(i -> {
+                    System.out.println("Second Map -> " + Thread.currentThread().getName());
+                    return i + 2;
+                });
+        //new Thread(() -> flux.subscribe(System.out::println)).start();
+        flux.subscribe(System.out::println);
+    }
+}
+....................................................................................
+			 Error Handling
+...................................................................................
+Handling Errors:
+..................
+
+In reactive stream specs , errors are terminal events.
+As soon as error occurs, it stop sequences and get propagated down the chain of operators
+to the last step. the subscriber you defined and its onError method.
+
+How to handle errors in more effective way:
+
+ Reactor provides Error handling operators.
+
+ 1.Catch and return a static default value.
+ 2.Catch and execute an alternative path with a fallback method.
+ 3.Catch and dynamically compute a fallback value
+ 4.Catch and wrap to CustomException and ret-throw
+ 5.Catch and log error-specific message, and rethrow.
+ 6.you can clean resources using finally block.
+
+package com.wipro.reactor.errorhandling;
+
+public class SimpleErrorHandling {
+    private static String doSomething(int i) {
+        // System.out.println(i);
+        if (i == 5) {
+            throw new RuntimeException("something went wrong!!!");
+        }
+        return Integer.toString(i);
+    }
+    public static void main(String[] args) {
+        //legacy code
+        try {
+            for (int i = 1; i < 10; i++) {
+                String v1 = doSomething(i);
+                System.out.println(v1);
+            }
+
+        } catch (Throwable a) {
+            System.out.println("CAUGHT" + a);
+        }
+    }
+}
+
+Reactive Error Handling.
+package com.wipro.reactor.errorhandling;
+
+import reactor.core.publisher.Flux;
+
+public class ReactiveErrorHandling {
+    private static String doSomething(int i) {
+        // System.out.println(i);
+        if (i == 5) {
+            throw new RuntimeException("something went wrong!!!");
+        }
+        return Integer.toString(i);
+    }
+
+    public static void main(String[] args) {
+        Flux<String> f = Flux.range(1, 10)
+                .map(v -> doSomething(v));
+
+        f.subscribe(v -> System.out.println(v),
+                err -> System.out.println("CAUGHT" + err.getMessage()));
+    }
+}
+
+I dont want to terminate my program incase any exception:
+...........................................................
+Use case 2 : how to return static fallback value:
+.................................................
+ try {
+            for (int i = 1; i < 10; i++) {
+                String v1 = doSomething(i);
+                System.out.println(v1);
+            }
+
+} catch (Throwable a) {
+     return "RECOVERED";
+}
+
+package com.wipro.reactor.errorhandling;
+
+import reactor.core.publisher.Flux;
+
+public class ReactiveFallback {
+    private static String doSomething(int i) {
+        // System.out.println(i);
+        if (i == 5) {
+            throw new RuntimeException("sorry");
+        }
+        return Integer.toString(i);
+    }
+
+    public static void main(String[] args) {
+        Flux.range(1, 10)
+                .map(v -> doSomething(v))
+                .onErrorReturn("RECOVERED")
+//                .onErrorReturn(e -> e.getMessage().equals("boom10"), "recovered10")
+                .subscribe(v -> System.out.println(v), err -> System.out.println(err));
+
+    }
+}
+....................................................................................
+				Fail fast and Flow Slow
+....................................................................................
+
+if any exception occurred, you can throw error, catch it /handle it immediately - fail fast
+
+if any exception occurred , you dont want to fail immediatly , you have to try for some time.
+
+package com.wipro.reactor.errorhandling;
+
+import reactor.core.publisher.Flux;
+
+public class Retry {
+    private static String doSomething(int i) {
+        System.out.println("Calling with " + i);
+        if (i == 5) {
+            throw new RuntimeException("sorry");
+        }
+        return Integer.toString(i);
+    }
+
+    public static void main(String[] args) {
+        Flux.range(1, 10)
+                .map(v -> doSomething(v))
+                .retry(3)
+                .onErrorReturn("RECOVERED")
+                .subscribe(v -> System.out.println(v), err -> System.out.println(err));
+    }
+}
+.....................................................................................
+		Spring with Project Reactor - Spring Web Flux && R2DBC
+.....................................................................................
+
+Spring webFlux-  For building Reactive Web Apps(Non blocking web Apps)
+R2DBC -The Reactive Relational Database Connectivity (R2DBC) project brings reactive         programming APIs to relational databases.
+https://r2dbc.io/
+
+Web Application on Java and Spring:
+..................................
+
+All web applications are written by using java techonlogy based on a spec called "Servlet Spec".
+
+Servlet apis are multi threaded model, blocking api.
+
+Request Per Thread, Thread is created for each request
+
+if more requests, you can see more threads.
+
+if a thread spends lot of time serving clients, which degrades performance,blocking , waiting.....
+
+A single thread is used to perform end to end client operations
+
+  client ---requests----pdf report-------------|----create a thread------->pdf service program------jdbc--|--db
+					   write pdf into socket 		 |
+                                                               |                  ---														   convert data into pdf
+										 |
+							       |--------	 write pdf into file server
+                                                             response is ready
+
+Servlet containers who implements servlet spec, follows the perclient request-thread model
+
+
+In this arch, more and more threads, now we need to think how to improve this?
+-Scalability
+     -Verticle
+     -Horizontal 
+
+Spring WebFlux is spring boot module.
+
+ spring-webflux
+
+   provides reactive http and websocket ,server and clients.
+    -REST ,html browser and web socket style interactions
+
+
+Types of WebFlux:
+
+HttpHandler:
+..........
+
+org.springframework.http.server.reactive
+
+Interface HttpHandler
+
+reactor.core.publisher.Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response)
+
+Handle the given request and write to the response.
+
+
+
+org.springframework.http.server.reactive
+
+Interface ServerHttpRequest
+
+Represents a reactive server-side HTTP request.
+
+
+org.springframework.http.server.reactive
+Interface ServerHttpResponse
+
+Represents a reactive server-side HTTP response.
+
+
+HttpHandler handler=........
+
+ReactorHttpHandlerAdapter adpater=new ReactorHttpHandlerAdapter(handler);
+HttpServer.create().host(host).port(port).handle(adapter).bind().block();
+
+
+WebHandler:
+
+ Provides a reactive extension for other features
+
+ -session handling
+ -filters
+ -Serialization and deserilzation.
+
+
+Request Interface ReactiveHttpInputMessage
+
+reactor.core.publisher.Flux<DataBuffer>	getBody()
+Return the body of the message as a Publisher.
+
+
+org.springframework.core.io.buffer
+Interface DataBuffer  Basic abstraction over byte buffers.
+
+
+Response:Interface ReactiveHttpOutputMessage
+
+Basic abstraction over byte buffers.
+reactor.core.publisher.Mono<Void>	writeWith(org.reactivestreams.Publisher<? extends DataBuffer> body)
+Use the given Publisher to write the body of the message to the underlying HTTP layer.
+
+
+Codecs: 
+  Encoder and Decorder are low level contractrs to encode and decode content indepentent 
+of HTTP.
+
+ HttpMessageReader and HttpMessageWriter contracts to encode and decode http message content
+
+Codecs supported by spring
+
+JACKSON2DECODER AND JACKSON2ENCODER
+
+
+ Flux<DataBuffer>  <------> Flux<T>
+  
+ Mono<List<T>
+ Mono<T>
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Spring Boot with Kotlin WebFlux:
+................................
+package com.example.reactiveweb
+
+import kotlinx.coroutines.delay
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
+
+@RestController
+@RequestMapping("/users")
+class UserController {
+
+    @GetMapping
+    fun getUsers(): Mono<List<String>> {
+        //return Mono.just("")
+        return listOf<String>("Subramanian", "Murugan").toMono()
+    }
+
+    @GetMapping("/coroutine")
+    suspend fun getValue(): List<String> {
+        delay(10000L)
+        return listOf<String>("Subramanian", "Murugan");
+    }
+}
+...
+
+WebClient:
+..........
+  Reactive api for communicating with Rest services.
+
+
+Steps:
+1.service layer:
+package com.example.reactiveweb
+
+import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Flux
+
+@Service
+class APIService {
+
+    fun fetchComments(postId: Int): Flux<Comment> = fetch("posts/$postId/comments").bodyToFlux(Comment::class.java)
+
+    fun fetchPosts(): Flux<Post> = fetch("/posts").bodyToFlux(Post::class.java)
+
+    fun fetch(path: String): WebClient.ResponseSpec {
+        val client = WebClient.create("http://jsonplaceholder.typicode.com/")
+        return client.get().uri(path).retrieve()
+    }
+}
+
+API Controller:
+package com.example.reactiveweb
+
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
+import reactor.kotlin.core.publisher.toMono
+
+@RestController
+@RequestMapping(path = ["/api"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+class APIController(private val apiService: APIService) {
+
+    @RequestMapping(method = [RequestMethod.GET])
+    fun getData(): Mono<ResponseEntity<List<Response>>> {
+        return apiService.fetchPosts()
+            .filter { it -> it.userId % 2 == 0 }
+            .take(20)
+            .parallel(4)
+            .runOn(Schedulers.parallel())
+            .map { post ->
+                apiService.fetchComments(post.id)
+                    .map { comment -> LightComment(email = comment.email, body = comment.body) }
+                    .collectList()
+                    .zipWith(post.toMono())
+            }
+            .flatMap { it -> it }
+            .map { result ->
+                Response(
+                    postId = result.t2.id,
+                    userId = result.t2.userId,
+                    title = result.t2.title,
+                    comments = result.t1
+                )
+            }
+            .sequential()
+            .collectList()
+            .map { body -> ResponseEntity.ok().body(body) }
+            .toMono()
+    }
+}
+Models:
+package com.example.reactiveweb
+
+
+data class Comment(
+    val postId: Int,
+    val id: Int,
+    val name: String,
+    val email: String,
+    val body: String
+)
+
+data class LightComment(
+    val email: String,
+    val body: String
+)
+
+data class Post(
+    val userId: Int,
+    val id: Int,
+    val title: String,
+    val body: String
+)
+
+data class Response(
+    val postId: Int,
+    val userId: Int,
+    val title: String,
+    val comments: List<LightComment>
+)
+MainApp:
+package com.example.reactiveweb
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class ReactivewebApplication
+
+fun main(args: Array<String>) {
+	runApplication<ReactivewebApplication>(*args)
+}
+
+
+
 
 
 
